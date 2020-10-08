@@ -3,6 +3,7 @@ import numpy as np
 import ode45
 import math
 
+#Small demo demonstrating the ODE45 function with y(t)'=-2sin(2t)cos(t)
 def main():
     rtol=0.001
     tspan=[-10,10]

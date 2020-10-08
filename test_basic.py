@@ -4,6 +4,8 @@ import numpy as np
 import utils as u
 import math
 
+#Series to the test the basic functionalities of the ODE45 function
+
 class TestBasic(unittest.TestCase):    
 
     def setUp(self):
@@ -12,6 +14,7 @@ class TestBasic(unittest.TestCase):
         self.n=10
         self.x_span=np.linspace(self.tspan[0],self.tspan[1],(self.tspan[1]-self.tspan[0])*self.n+1)
 
+    #Test the function y(t)'=1
     def test_constant(self):
         y0=[-10]
 
@@ -25,7 +28,7 @@ class TestBasic(unittest.TestCase):
         result_vector=o.ode45(test,self.tspan,y0,self.n)[0]
         self.assertTrue(u.assertVectorEqual(expected_vector,result_vector,self.rtol))
 
-
+    #Test the function y(t)'=2t+1
     def test_linear(self):
         y0=[90]
 
@@ -39,7 +42,7 @@ class TestBasic(unittest.TestCase):
         result_vector=o.ode45(test,self.tspan,y0,self.n)[0]
         self.assertTrue(u.assertVectorEqual(expected_vector,result_vector,self.rtol))
 
-    
+    #Test the function y(t)'=3t^2+t+2
     def test_square(self):
         y0=[-970]
 
@@ -53,6 +56,7 @@ class TestBasic(unittest.TestCase):
         result_vector=o.ode45(test,self.tspan,y0,self.n)[0]
         self.assertTrue(u.assertVectorEqual(expected_vector,result_vector,self.rtol))
     
+    #Test the function y(t)'=sin(t)
     def test_sin(self):
         y0=[0.8390715290764524]
 
@@ -66,6 +70,7 @@ class TestBasic(unittest.TestCase):
         result_vector=o.ode45(test,self.tspan,y0,self.n)[0]
         self.assertTrue(u.assertVectorEqual(expected_vector,result_vector,self.rtol))
     
+    #Test the function y(t)'=-2sin(2t)cos(t)
     def test_trig(self):
         y0=[-0.7876543791139244]
 

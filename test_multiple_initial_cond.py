@@ -4,6 +4,7 @@ import numpy as np
 import utils as u
 import math
 
+#Series to the test functions with multiple initial conditions of the ODE45 function
 
 class TestBasic(unittest.TestCase):    
 
@@ -13,6 +14,7 @@ class TestBasic(unittest.TestCase):
         self.n=10
         self.x_span=np.linspace(self.tspan[0],self.tspan[1],(self.tspan[1]-self.tspan[0])*self.n+1)
 
+    #Test the function y(t)'=1 with multiple initial conditions
     def test_constant(self):
         y0=[-10,-5,0,5,10]
         c=[0,5,10,15,20]
@@ -29,7 +31,7 @@ class TestBasic(unittest.TestCase):
             expected_vector=expected_fun(self.x_span,c[i])
             self.assertTrue(u.assertVectorEqual(expected_vector,result_vector[i],self.rtol))
 
-    
+    #Test the function y(t)'=sin(t) with multiple initial conditions
     def test_sin(self):
         y0=[0.8390715290764524-1,0.8390715290764524,1.8390715290764524]
         c=[-1,0,1]
@@ -45,6 +47,7 @@ class TestBasic(unittest.TestCase):
             expected_vector=expected_fun(self.x_span,c[i])
             self.assertTrue(u.assertVectorEqual(expected_vector,result_vector[i],self.rtol))
     
+    #Test the function y(t)'=-2sin(2t)cos(t) with multiple initial conditions
     def test_trig(self):
         y0=[-1.7876543791139244,-0.7876543791139244,1-0.7876543791139244]
         c=[-1,0,1]

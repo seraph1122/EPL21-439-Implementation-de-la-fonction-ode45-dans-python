@@ -1,7 +1,10 @@
 import scipy.integrate as i
 import numpy as np
 
-
+#
+# ODE45 using the standard Runge Kutta method
+# Can handle multiple initial conditions
+#
 def ode45(odefun,tspan,y0,n):
     t0=tspan[0]
     tend=tspan[1]
@@ -33,6 +36,7 @@ def ode45(odefun,tspan,y0,n):
                     [0,1/2,0],
                     [0,0,1]])
 
+        #Main Loop
         for i in range(1,(tend-t0)*n+1):
             k[0]=odefun(time_span[i-1],y[i-1])
             for j in range(1,size):
