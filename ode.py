@@ -10,6 +10,7 @@ def ode45(odefun,tspan,y0):
     ny0=len(y0)
     t=t_0
     y=y0
+    threshold=np.full(ny0,1^-3)
     
     yout=[]
     tout=[]
@@ -34,7 +35,7 @@ def ode45(odefun,tspan,y0):
         [0,           0,       0,       0,               -5103/18656,     -2187/6784  ], 
         [0,           0,       0,       0,               0,               11/84       ],
         [0,           0,       0,       0,               0,               0           ]])
-    E = np.array([71/57600, 0, -71/16695, 71/1920, -17253/339200, 22/525, -1/40])
+    E = np.array([[71/57600], [0], [-71/16695], [71/1920], [-17253/339200], [22/525], [-1/40]])
     f=np.zeros((ny0,7))
     
     f0=np.zeros(ny0)
@@ -56,28 +57,46 @@ def ode45(odefun,tspan,y0):
             absh = abs(h)
             done = True
         
-        hA = h * A
-        hB = h * B
-        #print(h)
-        #print(y)
+        nofailed=False
+        while True:
+            hA = h * A
+            hB = h * B
+    
+            for iy0 in range(ny0):
+                f[iy0,1]=odefun(t+hA[0],y[iy0]+np.dot(f[iy0],hB[:,0]))
+                f[iy0,2]=odefun(t+hA[1],y[iy0]+np.dot(f[iy0],hB[:,1]))
+                f[iy0,3]=odefun(t+hA[2],y[iy0]+np.dot(f[iy0],hB[:,2]))
+                f[iy0,4]=odefun(t+hA[3],y[iy0]+np.dot(f[iy0],hB[:,3]))
+                f[iy0,5]=odefun(t+hA[4],y[iy0]+np.dot(f[iy0],hB[:,4]))
+            
+            
+        
+            tnew = t + hA[5]
+            if done:
+              tnew = t_end
+            h = tnew - t 
+            
+            for iy0 in range(ny0):
+                ynew[iy0] = y[iy0] + np.dot(f[iy0],hB[:,5])
+            for iy0 in range(ny0):
+                f[iy0,6]=odefun(tnew,ynew[iy0])
+            
 
-        for iy0 in range(ny0):
-            f[iy0,1]=odefun(t+hA[0],y[iy0]+np.dot(f[iy0],hB[:,0]))
-            f[iy0,2]=odefun(t+hA[1],y[iy0]+np.dot(f[iy0],hB[:,1]))
-            f[iy0,3]=odefun(t+hA[2],y[iy0]+np.dot(f[iy0],hB[:,2]))
-            f[iy0,4]=odefun(t+hA[3],y[iy0]+np.dot(f[iy0],hB[:,3]))
-            f[iy0,5]=odefun(t+hA[4],y[iy0]+np.dot(f[iy0],hB[:,4]))
+            denom=np.linalg.norm(np.maximum(np.maximum(np.abs(y),np.abs(ynew)),threshold),np.inf)
+            err=absh*np.linalg.norm(np.matmul(f,E))/denom
+            
+            print(err)
+            #err = absh * norm((f * E) ./ max(max(abs(y),abs(ynew)),threshold),inf);
+            
+            break
+         
+#        if nofailed:
+#            temp = 1.25*(err/rtol)^pow
+#            if temp > 0.2:
+#              absh = absh / temp
+#            else:
+#              absh = 5.0*absh
         
-        tnew = t + hA[5]
-        if done:
-          tnew = t_end
-        h = tnew - t 
-        
-        for iy0 in range(ny0):
-            ynew[iy0] = y[iy0] + np.dot(f[iy0],hB[:,5])
-        for iy0 in range(ny0):
-            f[iy0,6]=odefun(tnew,ynew[iy0])
-                
         t=tnew
         y=ynew.copy()
         yout.append(y)
@@ -86,15 +105,6 @@ def ode45(odefun,tspan,y0):
         
         nsteps+=1
         
-        #print(f)
-        #print(tnew,t)
-        #print(ynew,y)
-        #print(h)
-        
-        #if nsteps==3:
-            #done=True
-    
-    #print(f)
     
     
     return OdeResult.OdeResult(solver_name='ode45',odefun=odefun,t=tout,y=np.array(yout),nsteps=nsteps)
@@ -104,7 +114,7 @@ def ode45(odefun,tspan,y0):
 tspan=[0,5]
 y0=[0]        
 def test(t,y):
-    return -2*y + 2*np.cos(t)*np.sin(2*t)
+    return 2*t#-2*y + 2*np.cos(t)*np.sin(2*t)
 
 result_vector=ode45(test,tspan,y0)
 print(result_vector)
