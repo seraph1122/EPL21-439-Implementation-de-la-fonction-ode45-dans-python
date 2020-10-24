@@ -2,6 +2,7 @@ import scipy.integrate as i
 import numpy as np
 import OdeResult
 import matplotlib.pyplot as plt
+import ntrp45 as ntrp
 
 def ode45(odefun,tspan,y0):
     t_0=tspan[0]
@@ -14,6 +15,7 @@ def ode45(odefun,tspan,y0):
     
     yout=[]
     tout=[]
+    error=[0]
     
     yout.append(y)
     tout.append(t)
@@ -21,6 +23,8 @@ def ode45(odefun,tspan,y0):
     tdir=1
     ynew=np.zeros(ny0)
     
+    refine=4
+    s=np.array(range(1,refine))/refine
     
     hmin=16*np.finfo(float(t)).eps
     hmax=(t_end-t_0)/10
@@ -43,8 +47,6 @@ def ode45(odefun,tspan,y0):
         f0[iy0]=odefun(t_0,y0[iy0])
         f[iy0,0]=f0[iy0]
     
-    #print(f)
-    #f[:,0]=f0
     
     done=False
     while not done:
@@ -84,45 +86,36 @@ def ode45(odefun,tspan,y0):
 
             denom=np.linalg.norm(np.maximum(np.maximum(np.abs(y),np.abs(ynew)),threshold),np.inf)
             err=absh*np.linalg.norm(np.matmul(f,E))/denom
+            error.append(err)
             
-            print(err)
-            #err = absh * norm((f * E) ./ max(max(abs(y),abs(ynew)),threshold),inf);
-            
+                        
             break
-         
-#        if nofailed:
-#            temp = 1.25*(err/rtol)^pow
-#            if temp > 0.2:
-#              absh = absh / temp
-#            else:
-#              absh = 5.0*absh
+        
+        #Refinement
+        tref=t+(tnew-t)*s
+        
+        nout_new=refine
+        tout_new=tref.copy()
+        tout_new=np.append(tout_new,tnew)
+        yout_new=np.transpose(ntrp.ntrp45(tref,t,y,h,f))
+        
         
         t=tnew
         y=ynew.copy()
+        for i in yout_new:
+            yout.append(i)
+        for i in tout_new:
+            tout.append(i)
         yout.append(y)
-        tout.append(t)
+        #tout.append(t)
         f[:,0]=f[:,6]
         
         nsteps+=1
-        
     
-    
-    return OdeResult.OdeResult(solver_name='ode45',odefun=odefun,t=tout,y=np.array(yout),nsteps=nsteps)
+    return OdeResult.OdeResult(solver_name='ode45',odefun=odefun,t=tout,y=np.array(yout),err=error,nsteps=nsteps)
     
 
-
-tspan=[0,5]
-y0=[0]        
-def test(t,y):
-    return 2*t#-2*y + 2*np.cos(t)*np.sin(2*t)
-
-result_vector=ode45(test,tspan,y0)
-print(result_vector)
-ax1=plt.plot(result_vector.y[:,0])
-
     
-            
-            
             
             
             
