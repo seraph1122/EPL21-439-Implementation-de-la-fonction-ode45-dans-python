@@ -1,5 +1,5 @@
 import unittest
-import ode45 as o
+import ode as o
 import numpy as np
 import utils as u
 import math
