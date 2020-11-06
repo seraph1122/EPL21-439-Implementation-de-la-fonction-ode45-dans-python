@@ -1,17 +1,27 @@
 import numpy as np
-import OdeResult
-import ntrp45 as ntrp
-import odeargument as odearg
+from OdeResult import OdeResult
+from ntrp45 import ntrp45
+from odeargument import odearguments
+from odeget import odeget
+from odeevents import odeevents
 import itertools
 import math
 
-def ode45(odefun,tspan,y0,options=[],varagin=[]):
+def ode45(odefun,tspan,y0,options=None,varargin=[]):
     
     solver_name='ode45'
     
     ''' 79 - 91
     TODO : Check inputs
     '''
+    
+    if options==None:
+        options={}
+    
+    if type(options)!=type({}):
+        raise Exception('{}:ode45:OptionsNotDictionary'.format(solver_name))
+    
+    
     
     #Stats
     nsteps=0
@@ -25,16 +35,17 @@ def ode45(odefun,tspan,y0,options=[],varagin=[]):
     TODO : Outputs
     '''
     
-    neq, tspan, ntspan, nex, t0, tfinal, tdir, y0, f0, odeArgs, odeFcn, options, threshold, rtol, normcontrol, normy, hmax, htry, htspan, dataType = odearg.odearguments(True, solver_name, odefun, tspan, y0, options, varagin)
+    neq, tspan, ntspan, nex, t0, tfinal, tdir, y0, f0, odeArgs, odeFcn, options, threshold, rtol, normcontrol, normy, hmax, htry, htspan, dataType = odearguments(True, solver_name, odefun, tspan, y0, options, varargin)
     nfevals = nfevals + 1
     
     ''' 118 - 144
     TODO : Handle Outputs
     '''
-    refine=4 #Temp
+    
+    refine=max(1,odeget(options,'Refine',4))
     s=np.array(range(1,refine))/refine #Temp
     
-    haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=0,None,None,None,None,None,None #Temp
+    haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(FcnHandlesUsed,odeFcn,t0,y0,options,varargin)
     
     ''' 146 - 148
     TODO : Handle Event Function
@@ -82,12 +93,12 @@ def ode45(odefun,tspan,y0,options=[],varagin=[]):
     power = 1/5
     A = np.array([1/5, 3/10, 4/5, 8/9, 1, 1])
     B = np.array([[1/5,         3/40,    44/45,   19372/6561,      9017/3168,       35/384    ],
-        [0,           9/40,    -56/15,  -25360/2187,     -355/33,         0           ],
-        [0,           0,       32/9,    64448/6561,      46732/5247,      500/1113    ],
-        [0,           0,       0,       -212/729,        49/176,          125/192     ],
-        [0,           0,       0,       0,               -5103/18656,     -2187/6784  ], 
-        [0,           0,       0,       0,               0,               11/84       ],
-        [0,           0,       0,       0,               0,               0           ]])
+                [0,           9/40,    -56/15,  -25360/2187,     -355/33,         0           ],
+                [0,           0,       32/9,    64448/6561,      46732/5247,      500/1113    ],
+                [0,           0,       0,       -212/729,        49/176,          125/192     ],
+                [0,           0,       0,       0,               -5103/18656,     -2187/6784  ], 
+                [0,           0,       0,       0,               0,               11/84       ],
+                [0,           0,       0,       0,               0,               0           ]])
     E = np.array([[71/57600], [0], [-71/16695], [71/1920], [-17253/339200], [22/525], [-1/40]])
     f=np.zeros((neq,7),dtype=dataType)
     hmin=16*np.finfo(float(t)).eps
@@ -196,7 +207,7 @@ def ode45(odefun,tspan,y0,options=[],varagin=[]):
             nout_new=refine
             tout_new=tref.copy()
             tout_new=np.append(tout_new,tnew)
-            yout_new=np.transpose(ntrp.ntrp45(tref,t,y,h,f))
+            yout_new=np.transpose(ntrp45(tref,t,y,h,f))
             yout_new=np.append(yout_new,np.array([ynew]),axis=0)
             yout_new=np.transpose(yout_new)
             
@@ -240,7 +251,7 @@ def ode45(odefun,tspan,y0,options=[],varagin=[]):
         f[:,0]=f[:,6]
         
         nsteps+=1
-    return OdeResult.OdeResult(solver_name='ode45',odefun=odefun,t=tout[0,0:nout],y=yout[:,0:nout],nsteps=nsteps)
+    return OdeResult(solver_name='ode45',odefun=odefun,t=tout[0,0:nout],y=yout[:,0:nout],nsteps=nsteps)
     
 
     

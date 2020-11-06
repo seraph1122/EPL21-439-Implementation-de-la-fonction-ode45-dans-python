@@ -70,10 +70,3 @@ def odearguments(FcnHandlesUsed, solver, ode, tspan, y0, options, extras):
     
     
     return neq, tspan, ntspan, nex, t0, tfinal, tdir, y0, f0, args, odeFcn, options, threshold, rtol, normcontrol, normy, hmax, htry, htspan, dataType
-        
-tspan=[0,2.5]
-y0=[-5,-4,-3,-2,-1,0,1,2,3,4,5]
-def test(t,y):
-    return -2*y + 2*np.cos(t)*np.sin(2*t)
-
-odearguments(True,'ode45',test,tspan,y0,[],[])
