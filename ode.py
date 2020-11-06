@@ -127,6 +127,7 @@ def ode45(odefun,tspan,y0,options=[],varagin=[]):
         absh = min(hmax, max(hmin, absh))
         h = tdir * absh
         
+
         if 1.1*absh >= abs(tfinal - t):
             h = tfinal - t
             absh = abs(h)
@@ -163,8 +164,8 @@ def ode45(odefun,tspan,y0,options=[],varagin=[]):
                 TODO : Estimate Error
                 '''
             else:
-                denom=np.linalg.norm(np.maximum(np.maximum(np.abs(y),np.abs(ynew)),threshold),np.inf)
-                err=absh*np.linalg.norm(np.matmul(f,E))/denom
+                denom=np.maximum(np.maximum(np.abs(y),np.abs(ynew)),threshold)
+                err=absh*np.linalg.norm(np.divide(np.matmul(f,E)[:,0],denom),np.inf)
                 ''' 292 - 298
                 TODO : Non-negative
                 '''
@@ -224,7 +225,7 @@ def ode45(odefun,tspan,y0,options=[],varagin=[]):
             break
         
         if True:
-            temp = math.pow(1.25*(err/rtol),power)
+            temp = 1.25*math.pow((err/rtol),power)
             if temp > 0.2:
                 absh=absh/temp
             else:
