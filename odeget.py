@@ -23,7 +23,7 @@ def odeget(options,name,default):
         raise Exception('{}:odeoptions:OptionNameInvalid'.format(name))
     
     if name in options:
-        if type(options.get(name))!=type(default):
+        if type(options.get(name))!=type(default) and default!=None:
             raise Exception('{}:odeoptions:OptionValueInvalidType'.format(name))
         else:
             o=options.get(name)

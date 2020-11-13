@@ -4,6 +4,8 @@ from ntrp45 import ntrp45
 from odeargument import odearguments
 from odeget import odeget
 from odeevents import odeevents
+from feval import feval
+from odezero import odezero
 import itertools
 import math
 
@@ -57,6 +59,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     
     nonNegative=0 #Temp
     output_ty=1 #Temp
+    idxNonNegative=False #temp
     
     ''' 167 - 172
     TODO : Non-negative solution
@@ -106,13 +109,13 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     
     if len(htry)==0:
         absh = min(hmax, htspan)
-        if normcontrol:
+        if normcontrol: #TODO
             if len(normy)==0:
                 rh=(np.linalg.norm(f0)/ threshold)/ (0.8 * math.pow(rtol,power))
             else:
                 rh=(np.linalg.norm(f0)/ max(threshold,max(normy)))/ (0.8 * math.pow(rtol,power))
         else:
-            rh=(np.linalg.norm(f0 / max(max(np.abs(y)),threshold),np.inf))/ (0.8 * math.pow(rtol,power))
+            rh=np.linalg.norm(f0 / np.maximum(np.abs(y),np.repeat(threshold,len(y))),np.inf) / (0.8 * math.pow(rtol,power))
             
         if (absh * rh) > 1:
             absh =1/rh
@@ -124,6 +127,8 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
             absh=min(absh,max(hmin,max(htry)))
     
     f[:,0]=f0
+    
+    
     
     ''' 232 - 236
     TODO : Init ouput function
@@ -148,13 +153,12 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
         while True:
             hA = h * A
             hB = h * B
-            
-            for iy0 in range(neq):
-                f[iy0,1]=odefun(t+hA[0],y[iy0]+np.dot(f[iy0],hB[:,0]))
-                f[iy0,2]=odefun(t+hA[1],y[iy0]+np.dot(f[iy0],hB[:,1]))
-                f[iy0,3]=odefun(t+hA[2],y[iy0]+np.dot(f[iy0],hB[:,2]))
-                f[iy0,4]=odefun(t+hA[3],y[iy0]+np.dot(f[iy0],hB[:,3]))
-                f[iy0,5]=odefun(t+hA[4],y[iy0]+np.dot(f[iy0],hB[:,4]))
+            f[:,1]=feval(odefun,t+hA[0],y+np.matmul(f,hB[:,0]),varargin)
+            f[:,2]=feval(odefun,t+hA[1],y+np.matmul(f,hB[:,1]),varargin)
+            f[:,3]=feval(odefun,t+hA[2],y+np.matmul(f,hB[:,2]),varargin)
+            f[:,4]=feval(odefun,t+hA[3],y+np.matmul(f,hB[:,3]),varargin)
+            f[:,5]=feval(odefun,t+hA[4],y+np.matmul(f,hB[:,4]),varargin)
+
             
             
             tnew = t + hA[5]
@@ -162,10 +166,9 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
               tnew = tfinal
             h = tnew - t 
             
-            for iy0 in range(neq):
-                ynew[iy0] = y[iy0] + np.dot(f[iy0],hB[:,5])
-            for iy0 in range(neq):
-                f[iy0,6]=odefun(tnew,ynew[iy0])
+            
+            ynew=y+np.matmul(f,hB[:,5])
+            f[:,6]=feval(odefun,tnew,ynew,varargin)
             nfevals=nfevals+6
             
             
@@ -189,9 +192,33 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
             break
         nsteps+=1
         
-        ''' 351 - 371
-        TODO : Event Function
-        '''
+        if haveEventFcn:
+            te,ye,ie,valt,stop=odezero(ntrp45,eventFcn,eventArgs,valt,t,y,tnew,ynew,t0,h,f,idxNonNegative)
+            
+        
+#        if haveEventFcn
+#            [te,ye,ie,valt,stop] = ...
+#                odezero(@ntrp45,eventFcn,eventArgs,valt,t,y,tnew,ynew,t0,h,f,idxNonNegative);
+#            if ~isempty(te)
+#              if output_sol || (nargout > 2)
+#                teout = [teout, te];
+#                yeout = [yeout, ye];
+#                ieout = [ieout, ie];
+#              end
+#              if stop               % Stop on a terminal event.               
+#                % Adjust the interpolation data to [t te(end)].   
+#                
+#                % Update the derivatives using the interpolating polynomial.
+#                taux = t + (te(end) - t)*A;        
+#                [~,f(:,2:7)] = ntrp45(taux,t,y,[],[],h,f,idxNonNegative);        
+#                
+#                tnew = te(end);
+#                ynew = ye(:,end);
+#                h = tnew - t;
+#                done = true;
+#              end
+#            end
+#          end
         
         ''' 375 - 385
         TODO : Failed step

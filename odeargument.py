@@ -1,4 +1,5 @@
 import numpy as np
+from feval import feval
 import itertools
 
 def odearguments(FcnHandlesUsed, solver, ode, tspan, y0, options, extras): 
@@ -6,13 +7,13 @@ def odearguments(FcnHandlesUsed, solver, ode, tspan, y0, options, extras):
     neq=len(y0)
     
     if None in tspan:
-        raise Exception('{}:odearguments:TspanNoneTypeValues'.format(solver_name))
+        raise Exception('{}:odearguments:TspanNoneTypeValues'.format(solver))
     
     if FcnHandlesUsed:
         if len(tspan)==0 or len(y0)==0:
-            raise Exception('{}:odearguments:TspanOrY0NotSupplied'.format(solver_name))
+            raise Exception('{}:odearguments:TspanOrY0NotSupplied'.format(solver))
         if len(tspan)<2:
-            raise Exception('{}:odearguments:SizeTspan'.format(solver_name))
+            raise Exception('{}:odearguments:SizeTspan'.format(solver))
         htspan = abs(tspan[1]-tspan[0])
         ntspan = len(tspan)
         t0 = tspan[0]
@@ -23,16 +24,13 @@ def odearguments(FcnHandlesUsed, solver, ode, tspan, y0, options, extras):
     neq = len(y0)
     
     if t0 == tfinal:
-        raise Exception('{}:odearguments:TspanEndpointsNotDistinct'.format(solver_name))
+        raise Exception('{}:odearguments:TspanEndpointsNotDistinct'.format(solver))
     tdir = np.sign(tfinal-t0)
     if any(tdir*np.diff(tspan)<=0):
-        raise Exception('{}:odearguments:TspanNotMonotonic'.format(solver_name))
+        raise Exception('{}:odearguments:TspanNotMonotonic'.format(solver))
     
     
-    if len(args)==0:
-        f0=np.array(list(map(ode,itertools.repeat(t0, neq),y0)))
-    else:
-        f0=np.array(list(map(ode,itertools.repeat(t0, neq),y0,itertools.repeat(args, neq))))
+    f0=feval(ode,t0,y0,extras)
 
     shape=f0.shape
     if len(shape)==1:
@@ -43,9 +41,9 @@ def odearguments(FcnHandlesUsed, solver, ode, tspan, y0, options, extras):
         n=shape[1]
     
     if n>1:
-        raise Exception('{}:odearguments:FoMustReturnCol'.format(solver_name))
+        raise Exception('{}:odearguments:FoMustReturnCol'.format(solver))
     elif m!=neq:
-        raise Exception('{}:odearguments:SizeIC'.format(solver_name))
+        raise Exception('{}:odearguments:SizeIC'.format(solver))
         
     
     classT0 = (np.array(t0)).dtype
@@ -56,7 +54,7 @@ def odearguments(FcnHandlesUsed, solver, ode, tspan, y0, options, extras):
     rtol=1e-3
     if rtol < 100 * np.finfo(dataType).eps:
         rtol = 100 * np.finfo(dataType).eps
-        raise Warning('{}:odearguments:RelTolIncrease'.format(solver_name))
+        raise Warning('{}:odearguments:RelTolIncrease'.format(solver))
     
     atol=1e-6
     normcontrol=0
