@@ -4,7 +4,7 @@ from feval import feval
 
 def odeevents(FcnHandlesUsed,ode,t0,y0,options,extras):
     
-    haveeventfun = 0
+    haveeventfun = False
     eventArgs = None
     eventValue = None
     teout = np.array([])
@@ -17,7 +17,7 @@ def odeevents(FcnHandlesUsed,ode,t0,y0,options,extras):
         return haveeventfun,eventFcn,eventArgs,eventValue,teout,yeout,ieout
     
     if FcnHandlesUsed==True:
-        haveeventfun = 1
+        haveeventfun = True
         eventArgs = extras
         [eventValue,isterminal,direction] = feval(eventFcn,t0,y0,eventArgs)
     

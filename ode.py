@@ -33,12 +33,14 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     #Outputs
     FcnHandlesUsed=callable(odefun)
     output_sol=0 #Temp
+    
     ''' 100 - 110
     TODO : Outputs
     '''
     
     neq, tspan, ntspan, nex, t0, tfinal, tdir, y0, f0, odeArgs, odeFcn, options, threshold, rtol, normcontrol, normy, hmax, htry, htspan, dataType = odearguments(True, solver_name, odefun, tspan, y0, options, varargin)
     nfevals = nfevals + 1
+    dataType='float64'
     
     ''' 118 - 144
     TODO : Handle Outputs
@@ -94,18 +96,20 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     
     #Initialize method parameters
     power = 1/5
-    A = np.array([1/5, 3/10, 4/5, 8/9, 1, 1])
-    B = np.array([[1/5,         3/40,    44/45,   19372/6561,      9017/3168,       35/384    ],
-                [0,           9/40,    -56/15,  -25360/2187,     -355/33,         0           ],
-                [0,           0,       32/9,    64448/6561,      46732/5247,      500/1113    ],
-                [0,           0,       0,       -212/729,        49/176,          125/192     ],
-                [0,           0,       0,       0,               -5103/18656,     -2187/6784  ], 
-                [0,           0,       0,       0,               0,               11/84       ],
-                [0,           0,       0,       0,               0,               0           ]])
-    E = np.array([[71/57600], [0], [-71/16695], [71/1920], [-17253/339200], [22/525], [-1/40]])
-    f=np.zeros((neq,7),dtype=dataType)
-    hmin=16*np.finfo(float(t)).eps
+    A = np.array([1./5., 3./10., 4./5., 8./9., 1., 1.],dtype='float64')
+    B = np.array([[1./5.,         3./40.,    44./45.,   19372./6561.,      9017./3168.,       35./384.    ],
+                [0.,           9./40.,    -56./15.,  -25360./2187.,     -355./33.,         0.           ],
+                [0.,           0.,       32./9.,    64448./6561.,      46732./5247.,      500./1113.    ],
+                [0.,           0.,       0.,       -212./729.,        49./176.,          125./192.     ],
+                [0.,           0.,       0.,       0.,               -5103./18656.,     -2187./6784.  ], 
+                [0.,           0.,       0.,       0.,               0.,               11./84.       ],
+                [0.,           0.,       0.,       0.,               0.,               0.           ]],dtype='float64')
     
+    
+    E = np.array([[71./57600.], [0.], [-71./16695.], [71./1920.], [-17253./339200.], [22./525.], [-1./40.]],dtype='float64')
+    f=np.zeros((neq,7),dtype='float64')#,dtype=dataType)
+    hmin=16*np.finfo(float(t)).eps
+    np.set_printoptions(precision=16)    
     
     if len(htry)==0:
         absh = min(hmax, htspan)
@@ -134,7 +138,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     TODO : Init ouput function
     '''
     
-    ynew=np.zeros(neq)
+    ynew=np.zeros(neq,dtype='float64')
         
     
     done=False
@@ -193,8 +197,23 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
         nsteps+=1
         
         if haveEventFcn:
-            te,ye,ie,valt,stop=odezero(ntrp45,eventFcn,eventArgs,valt,t,y,tnew,ynew,t0,h,f,idxNonNegative)
-            
+            te,ye,ie,valt,stop=odezero([],eventFcn,eventArgs,valt,t,y,tnew,ynew,t0,h,f,idxNonNegative)
+            if len(te)!=0:
+                if True: #Temp
+                    teout=np.append(teout,te)
+                    if len(yeout)==0:
+                        yeout=ye
+                    else:
+                        yeout=np.append(yeout,ye,axis=0)
+                    ieout=np.append(ieout,ye)
+                if stop:
+                    taux = t + (te[-1] - t)*A
+                    f[:,1:6]=ntrp45(taux,t,y,h,f)
+                    tnew = te[-1]
+                    ynew = ye[:,-1]
+                    h = tnew - t
+                    done = True
+                    
         
 #        if haveEventFcn
 #            [te,ye,ie,valt,stop] = ...
@@ -262,13 +281,13 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
         if done:
             break
         
+        
         if True:
             temp = 1.25*math.pow((err/rtol),power)
             if temp > 0.2:
                 absh=absh/temp
             else:
-                absh=0.5*absh
-        
+                absh=5.0*absh
                 
         
         

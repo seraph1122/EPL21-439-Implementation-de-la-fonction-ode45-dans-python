@@ -10,9 +10,9 @@ from feval import feval
 
 def main():
     def events(t,y):
-        value = y[0]
-        isterminal = 1
-        direction = -1
+        value = [y[0]]
+        isterminal = [1]
+        direction = [-1]
         return value,isterminal,direction
     
     options={'Events':events}
@@ -23,7 +23,9 @@ def main():
     def dydt(t,y):
         return [y[1],-9.8]
     
-    result_vector=ode45(dydt,tspan,y0,options)
+    r=ode45(dydt,tspan,y0,options)
+    
+    plt.plot(r.t,r.y[0])
     
 
     
