@@ -10,7 +10,7 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     tol = min(tol, abs(tnew - t))
     
     tout = np.array([])
-    yout = np.zeros((len(y),0))
+    yout = np.array([])
     iout = np.array([])
     tdir = math.copysign(1,tnew - t)
     stop = 0
@@ -26,14 +26,14 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     tR = tnew
     yR = ynew
     vR = vnew
-    
     ttry = tR
     
     
     while True:
         lastmoved = 0
         while True:
-            indzc=[i for i in range(len(direction)) if direction[i]*(vR-vL)>=0 and math.copysign(1,vR)!=math.copysign(1,vL)]
+            indzc=[i for i in range(len(direction)) if direction[i]*(vR[i]-vL[i])>=0 and math.copysign(1,vR[i])!=math.copysign(1,vL[i])]
+            
             if len(indzc)==0:
                 if lastmoved != 0:
                     raise Exception('ode45:odezero:LostEvent')
@@ -49,22 +49,22 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
             else:
                 change = 1
                 for j in indzc:
-                    if vL==0:
-                        if (tdir*ttry > tdir*tR) and (vtry[j] != vR):
-                            maybe = 1.0 - vR * (ttry-tR) / ((vtry[j]-vR) * delta)
+                    if vL[j]==0:
+                        if (tdir*ttry > tdir*tR) and (vtry[j] != vR[j]):
+                            maybe = 1.0 - vR[j] * (ttry-tR) / ((vtry[j]-vR[j]) * delta)
                             if (maybe < 0) or (maybe > 1):
                                 maybe = 0.5
                         else:
                             maybe = 0.5
-                    elif vR == 0.0:
-                        if (tdir*ttry < tdir*tL) and (vtry[j] != vL):
-                            maybe = vL * (tL-ttry) / ((vtry[j]-vL) * delta)
+                    elif vR[j] == 0.0:
+                        if (tdir*ttry < tdir*tL) and (vtry[j] != vL[j]):
+                            maybe = vL[j] * (tL-ttry) / ((vtry[j]-vL) * delta)
                             if (maybe < 0) or (maybe > 1):
                                 maybe = 0.5
                         else:
                             maybe = 0.5
                     else:
-                        maybe = -vL / (vR - vL)
+                        maybe = -vL[j] / (vR[j] - vL[j])
                     if maybe < change:
                         change = maybe
                 change = change * abs(delta)
@@ -75,10 +75,13 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                 ttry = tL + tdir * change
                 
     
-            ytry = ntrp45(ttry,t,y,h,f)[:,0]
-            vtry = feval(eventfun,ttry,ytry,[])[0,0]
-    
-            indzc=[i for i in range(len(direction)) if direction[i]*(vtry-vL)>=0 and math.copysign(1,vtry)!=math.copysign(1,vL)]
+            ytry, discard = ntrp45(ttry,t,y,h,f)
+            ytry=ytry[:,0]
+            vtry = feval(eventfun,ttry,ytry,[])[0]
+            
+            indzc=[index for index in range(len(direction)) if direction[index]*(vtry[index]-vL[index])>=0 and math.copysign(1,vtry[index])!=math.copysign(1,vL[index])]
+            
+            
             
             if len(indzc)!=0:
                 tswap = tR
@@ -109,18 +112,24 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                     pass #TODO
                     
                 lastmoved = 1
+
+        
+        ntout=np.array([tR for index in range(len(indzc))])
+        nyout=np.tile(np.transpose([yR]),len(indzc))
+        niout=np.array([indzc[index] for index in range(len(indzc))])
+        if len(tout)==0:
+            tout=ntout
+            yout=nyout
+            iout=niout
+        else:
+            tout=np.append(tout,ntout)
+            yout=np.append(yout,nyout)
+            iout=np.append(iout,niout)
+            
             
         
-        #To Complete
-        j = np.ones((1,len(indzc)))
-        tout = tR
-        yout = yR
-        iout = indzc
-        
-        if isterminal[0]==1:
+        if any([isterminal[index]==1 for index in indzc]):
             if tL != t0:
                 stop = 1
-        
-
-        break
+            break
     return tout,yout,iout,vnew,stop

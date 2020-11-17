@@ -12,8 +12,14 @@ def ntrp45(tinterp,t,y,h,f):
     [0,        -11/7,        11/3,        -55/28,   ],
     [0,         3/2,         -4,            5/2,    ]])
 
+    if type(tinterp)!=type(np.array([])):
+        tinterp=np.array([tinterp])
     s = (tinterp - t)/h
-    yinterp=np.transpose(np.tile(y,(3,1)))+np.matmul(np.matmul(f,h*BI),np.cumprod(np.tile(s,(4,1)),axis=0))
+
+    diff=np.matmul(np.matmul(f,h*BI),np.cumprod(np.tile(s,(4,1)),axis=0))
+    yinterp=np.transpose(np.tile(y,(len(tinterp),1)))+diff
     
+    ncumprod=np.array([np.ones(len(s)),2*s,1.5*s,3*s])
+    ypinterp=np.matmul(np.matmul(f,BI),ncumprod)
     
-    return yinterp
+    return yinterp, ypinterp

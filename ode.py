@@ -146,7 +146,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
         hmin = 16*np.finfo(float(t)).eps
         absh = min(hmax, max(hmin, absh))
         h = tdir * absh
-        
+                
 
         if 1.1*absh >= abs(tfinal - t):
             h = tfinal - t
@@ -198,6 +198,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
         
         if haveEventFcn:
             te,ye,ie,valt,stop=odezero([],eventFcn,eventArgs,valt,t,y,tnew,ynew,t0,h,f,idxNonNegative)
+            
             if len(te)!=0:
                 if True: #Temp
                     teout=np.append(teout,te)
@@ -205,39 +206,15 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
                         yeout=ye
                     else:
                         yeout=np.append(yeout,ye,axis=0)
-                    ieout=np.append(ieout,ye)
+                    ieout=np.append(ieout,ie)
                 if stop:
                     taux = t + (te[-1] - t)*A
-                    f[:,1:6]=ntrp45(taux,t,y,h,f)
+                    discard,f[:,1:7]=ntrp45(taux,t,y,h,f)
                     tnew = te[-1]
                     ynew = ye[:,-1]
                     h = tnew - t
                     done = True
                     
-        
-#        if haveEventFcn
-#            [te,ye,ie,valt,stop] = ...
-#                odezero(@ntrp45,eventFcn,eventArgs,valt,t,y,tnew,ynew,t0,h,f,idxNonNegative);
-#            if ~isempty(te)
-#              if output_sol || (nargout > 2)
-#                teout = [teout, te];
-#                yeout = [yeout, ye];
-#                ieout = [ieout, ie];
-#              end
-#              if stop               % Stop on a terminal event.               
-#                % Adjust the interpolation data to [t te(end)].   
-#                
-#                % Update the derivatives using the interpolating polynomial.
-#                taux = t + (te(end) - t)*A;        
-#                [~,f(:,2:7)] = ntrp45(taux,t,y,[],[],h,f,idxNonNegative);        
-#                
-#                tnew = te(end);
-#                ynew = ye(:,end);
-#                h = tnew - t;
-#                done = true;
-#              end
-#            end
-#          end
         
         ''' 375 - 385
         TODO : Failed step
@@ -253,7 +230,8 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
             nout_new=refine
             tout_new=tref.copy()
             tout_new=np.append(tout_new,tnew)
-            yout_new=np.transpose(ntrp45(tref,t,y,h,f))
+            yout_new,discard=ntrp45(tref,t,y,h,f)
+            yout_new=np.transpose(yout_new)
             yout_new=np.append(yout_new,np.array([ynew]),axis=0)
             yout_new=np.transpose(yout_new)
             
