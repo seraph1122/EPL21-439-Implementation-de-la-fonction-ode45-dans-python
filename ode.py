@@ -132,7 +132,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     
     f[:,0]=f0
     
-    
+    print(absh)
     
     ''' 232 - 236
     TODO : Init ouput function
@@ -175,12 +175,16 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
             f[:,6]=feval(odefun,tnew,ynew,varargin)
             nfevals=nfevals+6
             
+#            print(h)
+            #print(f)
             
             NNrejectStep = False
             if normcontrol:
                 ''' 280 - 289
                 TODO : Estimate Error
                 '''
+                err=0
+                print("Test")
             else:
                 denom=np.maximum(np.maximum(np.abs(y),np.abs(ynew)),threshold)
                 err=absh*np.linalg.norm(np.divide(np.matmul(f,E)[:,0],denom),np.inf)

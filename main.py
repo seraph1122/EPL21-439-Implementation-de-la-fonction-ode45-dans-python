@@ -9,24 +9,81 @@ from feval import feval
 
 
 def main():
+#    fig = plt.gcf()
+#    fig.set_size_inches(8, 6)
+#    
+#    
+#    mu = 1.0 / 82.45
+#    mustar = 1 - mu
+#    y0 = [1.2, 0, 0, -1.04935750983031990726]
+#    tspan = [0,7]
+#    
+#    def events(t,y):
+#      dDSQdt = (y[0]-y0[0])*(y[0]-y0[0])+(y[1]-y0[1])*(y[1]-y0[1])
+#      value = [dDSQdt, dDSQdt]
+#      isterminal = [1,  0]
+#      direction  = [1, -1]
+#      
+#      return value,isterminal,direction
+#  
+#    def f(t,y):
+#      mu = 1.0 / 82.45
+#      mustar = 1 - mu
+#      r13 = math.pow(((y[0] + mu)*(y[0] + mu) + y[1]*y[1]), 1.5)
+#      r23 = math.pow(((y[0] - mustar)*(y[0] - mustar) +  y[1]*y[1]), 1.5)
+#      x1=y[2]
+#      x2=y[3]
+#      x3=2*y[3] + y[0] - mustar*((y[0]+mu)/r13) - mu*((y[0]-mustar)/r23)
+#      x4=-2*y[2] + y[1] - mustar*(y[1]/r13) - mu*(y[1]/r23)
+#      dydt = [ x1, x2, x3, x4]
+#      return dydt
+#    
+#    options={'Events':events}
+#    
+#    r=ode45(f,tspan,y0,options)
+#    
+#    plt.plot(r.y[0],r.y[1])
+    
+    
+    
+    fig = plt.gcf()
+    fig.set_size_inches(8, 6)
+    
     def events(t,y):
         value = [y[0]]
         isterminal = [1]
         direction = [-1]
-        return value,isterminal,direction
+        return [value,isterminal,direction]
     
     options={'Events':events}
 
-    tspan=[0,30]
+    #tspan=[0,30]
+    tstart=0
     y0 = [0, 20]
     
     def dydt(t,y):
         return [y[1],-9.8]
     
-    r=ode45(dydt,tspan,y0,options)
-    
-    plt.plot(r.t,r.y[0])
-    
+    t=np.array([])
+    y=np.array([])
+    for i in range(10):
+        tspan=[tstart,30]
+        r=ode45(dydt,tspan,y0,options)
+        n=len(r.t)
+        y0[1]=0.9*y0[1]
+        t=np.append(t,r.t)
+        y=np.append(y,r.y[0])
+        tstart=r.t[n-1]
+        
+        
+    print(len(t))
+    plt.plot(t,y)
+    #plt.scatter(np.arange(len(t)-1),np.diff(t))
+    #plt.yscale('log')
+    #plt.ylim(10e-7,1)
+    #plt.xlabel('step')
+    #plt.ylabel('h size')
+    #plt.title('Step size python')
 
     
     

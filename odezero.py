@@ -32,8 +32,11 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     while True:
         lastmoved = 0
         while True:
+#            print(vR)
+#            print(vL)
             indzc=[i for i in range(len(direction)) if direction[i]*(vR[i]-vL[i])>=0 and math.copysign(1,vR[i])!=math.copysign(1,vL[i])]
             
+#            print(indzc)
             if len(indzc)==0:
                 if lastmoved != 0:
                     raise Exception('ode45:odezero:LostEvent')
@@ -41,6 +44,7 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                     return tout,yout,iout,vnew,stop
             
             delta = tR - tL
+#            print(delta)
             if abs(delta) <= tol:
                 break
             
@@ -82,6 +86,7 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
             indzc=[index for index in range(len(direction)) if direction[index]*(vtry[index]-vL[index])>=0 and math.copysign(1,vtry[index])!=math.copysign(1,vL[index])]
             
             
+#            print(indzc)
             
             if len(indzc)!=0:
                 tswap = tR
