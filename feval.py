@@ -4,17 +4,21 @@ import sys
 
 def feval(fun,t,y,extra):
     
-    mainArgs = np.array([t,y])
+    if y==None:
+        mainArgs = np.array([t])
+    else:
+        mainArgs = np.array([t, y])
+        
     extraArgs = np.array(extra)
     allArgs = np.append(mainArgs, extraArgs)
     
-    if not isinstance(y,collections.Sequence):
+
+    if not (type(y)==type([]) or type(y)==type(np.array([]))):
         result = fun(*allArgs)
     else:
         try:
             result = fun(*allArgs)
-            print(result)
-            if not ( isinstance(result,collections.Sequence) or type(result)==type(np.array([]))):
+            if not ( type(result)==type([]) or type(result)==type(np.array([]))):
                 raise Exception('{}:feval:FunctionResultType'.format(fun))
         except TypeError:
             result = np.zeros(len(y))

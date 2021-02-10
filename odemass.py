@@ -1,21 +1,27 @@
 from odeget import odeget
 from feval import feval
+
 import numpy as np
 import scipy.sparse as sp
 
+
 def odemass(ode,t0,y0,options,extras):
     massType = 0
-    massFcn = np.array([])
-    massM = sp.eye(len(y0))
+    massFcn = None
+    if (type(y0)==type([]) or type(y0)==type(np.array([]))):
+        massM = sp.eye(len(y0))
+    else:
+        massM = 1
     massArgs = None
     
     Moption = odeget(options,'Mass',None)
     
     if Moption==None:
         return massType, massM, massFcn
-    elif type(Moption)==type(np.array([])) or type(Moption)==type([]):
+    elif not callable(Moption):
         massType = 1
         massM = Moption
+        return massType, massM, massFcn
     else:
         massFcn = Moption
         massArgs = extras
