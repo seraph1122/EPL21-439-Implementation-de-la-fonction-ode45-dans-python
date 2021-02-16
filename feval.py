@@ -12,14 +12,16 @@ def feval(fun,t,y,extra):
     extraArgs = np.array(extra)
     allArgs = np.append(mainArgs, extraArgs)
     
-
     if not (type(y)==type([]) or type(y)==type(np.array([]))):
         result = fun(*allArgs)
     else:
         try:
             result = fun(*allArgs)
             if not ( type(result)==type([]) or type(result)==type(np.array([]))):
-                raise Exception('{}:feval:FunctionResultType'.format(fun))
+                result = np.zeros(len(y))
+                for i in range(len(y)):
+                    allArgs[1] = y[i]
+                    result[i] = fun(*allArgs)
         except TypeError:
             result = np.zeros(len(y))
             for i in range(len(y)):
