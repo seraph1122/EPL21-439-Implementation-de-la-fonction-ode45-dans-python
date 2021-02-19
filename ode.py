@@ -6,6 +6,9 @@ from odeget import odeget
 from odeevents import odeevents
 from feval import feval
 from odezero import odezero
+from odemass import odemass
+from odemassexplicit import odemassexplicit
+from odenonnegative import odenonnegative
 import itertools
 import math
 
@@ -45,6 +48,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     ''' 118 - 144
     TODO : Handle Outputs
     '''
+    haveOutputFcn =1#Temp
     
     refine=max(1,odeget(options,'Refine',4))
     s=np.array(range(1,refine))/refine #Temp
@@ -55,17 +59,23 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     TODO : Handle Event Function
     '''
     
-    ''' 150 - 163
-    TODO : Handle Mass Function
-    '''
+    
+    
+    Mtype, M, Mfun =  odemass(odeFcn,t0,y0,options,varargin)
+    if Mtype > 0:
+        odeFcn,odeArgs = odemassexplicit(Mtype,odeFcn,odeArgs,Mfun,M)
+        f0 = feval(odeFcn,t0,y0,odeArgs)
+        nfevals = nfevals + 1;
     
     nonNegative=0 #Temp
     output_ty=1 #Temp
-    idxNonNegative=False #temp
     
-    ''' 167 - 172
-    TODO : Non-negative solution
-    '''
+    idxNonNegative = odeget(options,'NonNegative',[])
+    if len(idxNonNegative) != 0:
+        odeFcn,thresholdNonNegative = odenonnegative(odeFcn,y0,threshold,idxNonNegative);
+        f0 = feval(odeFcn,t0,y0,odeArgs)
+        nfevals = nfevals + 1
+    
     
     t=t0
     y=y0
@@ -132,7 +142,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     
     f[:,0]=f0
     
-    print(absh)
+    #print(absh)
     
     ''' 232 - 236
     TODO : Init ouput function
@@ -157,13 +167,15 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
         while True:
             hA = h * A
             hB = h * B
-            f[:,1]=feval(odefun,t+hA[0],y+np.matmul(f,hB[:,0]),varargin)
-            f[:,2]=feval(odefun,t+hA[1],y+np.matmul(f,hB[:,1]),varargin)
-            f[:,3]=feval(odefun,t+hA[2],y+np.matmul(f,hB[:,2]),varargin)
-            f[:,4]=feval(odefun,t+hA[3],y+np.matmul(f,hB[:,3]),varargin)
-            f[:,5]=feval(odefun,t+hA[4],y+np.matmul(f,hB[:,4]),varargin)
+            print(varargin)
+            f[:,1]=feval(odeFcn,t+hA[0],y+np.matmul(f,hB[:,0]),varargin)
+            f[:,2]=feval(odeFcn,t+hA[1],y+np.matmul(f,hB[:,1]),varargin)
+            f[:,3]=feval(odeFcn,t+hA[2],y+np.matmul(f,hB[:,2]),varargin)
+            f[:,4]=feval(odeFcn,t+hA[3],y+np.matmul(f,hB[:,3]),varargin)
+            f[:,5]=feval(odeFcn,t+hA[4],y+np.matmul(f,hB[:,4]),varargin)
 
-            
+            #print(odeFcn)
+            #print(f)
             
             tnew = t + hA[5]
             if done:
@@ -172,7 +184,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
             
             
             ynew=y+np.matmul(f,hB[:,5])
-            f[:,6]=feval(odefun,tnew,ynew,varargin)
+            f[:,6]=feval(odeFcn,tnew,ynew,varargin)
             nfevals=nfevals+6
             
 #            print(h)
@@ -184,7 +196,6 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
                 TODO : Estimate Error
                 '''
                 err=0
-                print("Test")
             else:
                 denom=np.maximum(np.maximum(np.abs(y),np.abs(ynew)),threshold)
                 err=absh*np.linalg.norm(np.divide(np.matmul(f,E)[:,0],denom),np.inf)
@@ -279,7 +290,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
         f[:,0]=f[:,6]
         
         nsteps+=1
-    return OdeResult(solver_name='ode45',odefun=odefun,t=tout[0,0:nout],y=yout[:,0:nout],nsteps=nsteps)
+    return OdeResult(solver_name='ode45',odefun=odeFcn,t=tout[0,0:nout],y=yout[:,0:nout],nsteps=nsteps)
     
 
     

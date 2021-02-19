@@ -4,7 +4,7 @@ import sys
 
 def feval(fun,t,y,extra):
     
-    if y==None:
+    if type(y)==None:
         mainArgs = np.array([t])
     else:
         mainArgs = np.array([t, y])

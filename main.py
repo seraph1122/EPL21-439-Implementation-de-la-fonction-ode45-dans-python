@@ -49,35 +49,51 @@ def main():
     fig = plt.gcf()
     fig.set_size_inches(8, 6)
     
-    def events(t,y):
-        value = [y[0]]
-        isterminal = [1]
-        direction = [-1]
-        return [value,isterminal,direction]
-    
-    options={'Events':events}
-
-    #tspan=[0,30]
-    tstart=0
-    y0 = [0, 20]
     
     def dydt(t,y):
-        return [y[1],-9.8]
+        return np.cos(t)
     
-    t=np.array([])
-    y=np.array([])
-    for i in range(10):
-        tspan=[tstart,30]
-        r=ode45(dydt,tspan,y0,options)
-        n=len(r.t)
-        y0[1]=0.9*y0[1]
-        t=np.append(t,r.t)
-        y=np.append(y,r.y[0])
-        tstart=r.t[n-1]
-        
-        
-    print(len(t))
-    plt.plot(t,y)
+    
+    
+    options={'NonNegative':[0]}
+    tspan=[0,10]
+    y0=[0]
+    r=ode45(dydt,tspan,y0,options)
+    print(r.y[0])
+    plt.plot(r.t,r.y[0])
+    
+    
+    
+    
+#    def events(t,y):
+#        value = [y[0]]
+#        isterminal = [1]
+#        direction = [-1]
+#        return [value,isterminal,direction]
+#    
+#    options={'Events':events}
+
+    #tspan=[0,30]
+#    tstart=0
+#    y0 = [0, 20]
+#    
+#    def dydt(t,y):
+#        return [y[1],-9.8]
+#    
+#    t=np.array([])
+#    y=np.array([])
+#    for i in range(10):
+#        tspan=[tstart,30]
+#        r=ode45(dydt,tspan,y0,options)
+#        n=len(r.t)
+#        y0[1]=0.9*y0[1]
+#        t=np.append(t,r.t)
+#        y=np.append(y,r.y[0])
+#        tstart=r.t[n-1]
+#        
+#        
+#    print(len(t))
+#    plt.plot(t,y)
     #plt.scatter(np.arange(len(t)-1),np.diff(t))
     #plt.yscale('log')
     #plt.ylim(10e-7,1)
