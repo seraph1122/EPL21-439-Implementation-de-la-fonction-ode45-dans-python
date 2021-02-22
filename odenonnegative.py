@@ -20,10 +20,10 @@ def odenonnegative(ode,y0,threshold,idxNonNegative):
     def local_odeFcn_nonnegative(t,y,varargin=[]):
         yp = feval(ode,t,y,varargin)
         ndx = [i for i in idxNonNegative if y[i]<=0]
-        print(ndx,y,yp)
+        #print(ndx,y,yp)
         for i in ndx:
             yp[i] = max(yp[i],0)
-        print(yp)
+        #print(yp)
         return yp
 
     odeFcn = local_odeFcn_nonnegative

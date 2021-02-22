@@ -55,12 +55,13 @@ def main():
     
     
     
-    options={'NonNegative':[0]}
+    options={'NonNegative':[0,1]}
     tspan=[0,10]
-    y0=[0]
+    y0=[0,0.1]
     r=ode45(dydt,tspan,y0,options)
     print(r.y[0])
     plt.plot(r.t,r.y[0])
+    plt.plot(r.t,r.y[1])
     
     
     
