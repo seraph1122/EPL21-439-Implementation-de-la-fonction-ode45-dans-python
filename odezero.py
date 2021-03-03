@@ -7,6 +7,7 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     
     
     tol = 128*max(np.finfo(float(t)).eps,np.finfo(float(tnew)).eps)
+    print(tol)
     tol = min(tol, abs(tnew - t))
     
     tout = np.array([])
@@ -20,7 +21,8 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     tL = t
     yL = y
     vL = v
-    [vnew,isterminal,direction] = feval(eventfun,tnew,ynew,eventargs)
+    [vnew,isterminal,direction] = feval(eventfun,tnew,ynew,eventargs,verify=False)
+    print(vnew,isterminal,direction)
     if len(direction)==0:
       direction = np.zeros(len(vnew))
     tR = tnew
@@ -28,15 +30,12 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     vR = vnew
     ttry = tR
     
-    
+    print(tol,tout,yout,iout,tdir,stop,rmin,tL,yL,vL,tR,yR,vR,ttry)
     while True:
         lastmoved = 0
         while True:
-#            print(vR)
-#            print(vL)
             indzc=[i for i in range(len(direction)) if direction[i]*(vR[i]-vL[i])>=0 and math.copysign(1,vR[i])!=math.copysign(1,vL[i])]
             
-#            print(indzc)
             if len(indzc)==0:
                 if lastmoved != 0:
                     raise Exception('ode45:odezero:LostEvent')
@@ -44,7 +43,6 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                     return tout,yout,iout,vnew,stop
             
             delta = tR - tL
-#            print(delta)
             if abs(delta) <= tol:
                 break
             
@@ -79,9 +77,14 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                 ttry = tL + tdir * change
                 
     
-            ytry, discard = ntrp45(ttry,t,y,h,f)
+            ytry, discard = ntrp45(ttry,t,y,h,f,idxNonNegative)
             ytry=ytry[:,0]
-            vtry = feval(eventfun,ttry,ytry,[])[0]
+            print("Test")
+            mainArgs = np.array([tnew, ynew])
+            extraArgs = np.array(eventargs)
+            allArgs = np.append(mainArgs, extraArgs)
+            vtry = eventfun(*allArgs)[0]
+            #vtry = feval(eventfun,ttry,ytry,[])[0]#fix feval
             
             indzc=[index for index in range(len(direction)) if direction[index]*(vtry[index]-vL[index])>=0 and math.copysign(1,vtry[index])!=math.copysign(1,vL[index])]
             

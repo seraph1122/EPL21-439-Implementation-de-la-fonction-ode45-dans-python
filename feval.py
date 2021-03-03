@@ -2,8 +2,14 @@ import numpy as np
 import collections
 import sys
 
-def feval(fun,t,y,extra):
+def feval(fun,t,y,extra,verify=True):
     
+    if not verify:
+        mainArgs = np.array([t, y])
+        extraArgs = np.array(extra)
+        allArgs = np.append(mainArgs, extraArgs)
+        return fun(*allArgs)
+        
     if type(y)==None:
         mainArgs = np.array([t])
     else:

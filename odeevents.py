@@ -19,6 +19,9 @@ def odeevents(FcnHandlesUsed,ode,t0,y0,options,extras):
     if FcnHandlesUsed==True:
         haveeventfun = True
         eventArgs = extras
-        [eventValue,isterminal,direction] = feval(eventFcn,t0,y0,eventArgs)
+        mainArgs = np.array([t0, y0])
+        extraArgs = np.array(eventArgs)
+        allArgs = np.append(mainArgs, extraArgs)
+        [eventValue,isterminal,direction] = eventFcn(*allArgs)#Change to feval
     
     return haveeventfun,eventFcn,eventArgs,eventValue,teout,yeout,ieout

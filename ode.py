@@ -167,7 +167,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
         while True:
             hA = h * A
             hB = h * B
-            print(varargin)
+            #print(varargin)
             f[:,1]=feval(odeFcn,t+hA[0],y+np.matmul(f,hB[:,0]),varargin)
             f[:,2]=feval(odeFcn,t+hA[1],y+np.matmul(f,hB[:,1]),varargin)
             f[:,3]=feval(odeFcn,t+hA[2],y+np.matmul(f,hB[:,2]),varargin)

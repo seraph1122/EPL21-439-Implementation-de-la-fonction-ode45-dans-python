@@ -21,10 +21,8 @@ def ntrp45(tinterp,t,y,h,f,idxNonNegative):
     
     ncumprod=np.array([np.ones(len(s)),2*s,1.5*s,3*s])
     ypinterp=np.matmul(np.matmul(f,BI),ncumprod)
-    print(yinterp)
     if len(idxNonNegative)!=0:
         idx=[(i,j) for i in idxNonNegative for j in range(len(yinterp[0])) if yinterp[i][j]<0]
-        print(idx)
         if len(idx) != 0:
             for i,j in idx:
                 ypinterp[i][j]=0

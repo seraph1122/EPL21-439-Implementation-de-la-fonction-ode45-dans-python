@@ -62,7 +62,7 @@ def main():
     print(r.y[0])
     plt.plot(r.t,r.y[0])
     plt.plot(r.t,r.y[1])
-    
+#    
     
     
     
@@ -73,8 +73,8 @@ def main():
 #        return [value,isterminal,direction]
 #    
 #    options={'Events':events}
-
-    #tspan=[0,30]
+#
+#    tspan=[0,30]
 #    tstart=0
 #    y0 = [0, 20]
 #    
@@ -104,8 +104,40 @@ def main():
 
     
     
-    
-    
+    #Orbit
+#    mu = 1 / 82.45
+#    mustar = 1 - mu
+#    y0 = [1.2, 0, 0, -1.04935750983031990726]
+#    tspan = [0, 7]
+#    
+#    def f(t,y):
+#        mu = 1.0 / 82.45
+#        mustar = 1 - mu
+#        r13 = math.pow(((y[0] + mu)*(y[0] + mu) + y[1]*y[1]), 1.5)
+#        r23 = math.pow(((y[0] - mustar)*(y[0] - mustar) +  y[1]*y[1]), 1.5)
+#        x1=y[2]
+#        x2=y[3]
+#        x3=2*y[3] + y[0] - mustar*((y[0]+mu)/r13) - mu*((y[0]-mustar)/r23)
+#        x4=-2*y[2] + y[1] - mustar*(y[1]/r13) - mu*(y[1]/r23)
+#        dydt = [ x1, x2, x3, x4]
+#        #print(dydt)
+#        return dydt
+#
+#    def events(t,y):
+#        #print(t,y)
+#        dDSQdt=2*((y[0]-1.2)*(y[2])+(y[1])*(y[3]))
+#        value = [dDSQdt, dDSQdt]
+#        isterminal = [1,  0]
+#        direction  = [1, -1]
+#        
+#        return value, isterminal, direction
+#    
+#    options = {'Events':events}
+#    
+#    
+#    res=ode45(f,tspan,y0,options)
+#
+#    plt.plot(res.y[0],res.y[1])
     
     
     
