@@ -16,8 +16,9 @@ def ntrp45(tinterp,t,y,h,f,idxNonNegative):
         tinterp=np.array([tinterp])
     s = (tinterp - t)/h
 
-    diff=np.matmul(np.matmul(f,h*BI),np.cumprod(np.tile(s,(4,1)),axis=0))
-    yinterp=np.transpose(np.tile(y,(len(tinterp),1)))+diff
+    diff=np.matmul(np.matmul(f,h*BI),np.cumprod(np.tile(s,(4,1)),axis=0)) 
+    yinterp=np.tile(y,(1,len(tinterp)))+diff
+    #yinterp=np.transpose(np.tile(y,(len(tinterp),1)))+diff
     
     ncumprod=np.array([np.ones(len(s)),2*s,1.5*s,3*s])
     ypinterp=np.matmul(np.matmul(f,BI),ncumprod)

@@ -221,10 +221,10 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
                         yeout=ye
                     else:
                         yeout=np.append(yeout,ye,axis=0)
-                    ieout=np.append(ieout,ie)
+                    ieout=np.append(ieout,ie) #ieout is 2d
                 if stop:
                     taux = t + (te[-1] - t)*A
-                    discard,f[:,1:7]=ntrp45(taux,t,y,h,f,idxNonNegative)
+                    discard,f[:,1:7]=ntrp45(taux,t,np.transpose([y]),h,f,idxNonNegative)
                     tnew = te[-1]
                     ynew = ye[:,-1]
                     h = tnew - t
@@ -245,7 +245,8 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
             nout_new=refine
             tout_new=tref.copy()
             tout_new=np.append(tout_new,tnew)
-            yout_new,discard=ntrp45(tref,t,y,h,f,idxNonNegative)
+            print(y)
+            yout_new,discard=ntrp45(tref,t,np.transpose([y]),h,f,idxNonNegative) #Fix y orientation
             yout_new=np.transpose(yout_new)
             yout_new=np.append(yout_new,np.array([ynew]),axis=0)
             yout_new=np.transpose(yout_new)
