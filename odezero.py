@@ -65,7 +65,6 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                             maybe = 0.5
                     else:
                         maybe = -vL[j] / (vR[j] - vL[j])
-                        print(maybe)
                     if maybe < change:
                         change = maybe
                 change = change * abs(delta)
@@ -81,7 +80,6 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
 
             
             indzc = [i for i in range(len(direction)) if (direction[i]*(vtry[i]-vL[i])>=0) and (vtry[i]*vL[i] < 0 or vtry[i]*vL[i] == 0)]
-            print(indzc,ytry,vtry)
             
             
             if len(indzc)!=0:
@@ -99,7 +97,6 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                     for i in range(len(maybe)):
                         if abs(maybe[i]) >= rmin:
                             vL[i] = maybe[i]
-                    print(maybe,vL)
                 lastmoved = 2
             else:
                 tswap = tL

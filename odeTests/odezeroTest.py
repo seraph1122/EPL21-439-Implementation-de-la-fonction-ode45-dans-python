@@ -70,8 +70,8 @@ class Testodenonnegative(unittest.TestCase):
         self.assertAlmostEqual(yout[2,0],-0.005612072916572)
         self.assertAlmostEqual(yout[3,0],1.038220065006574)
         self.assertEqual(iout[0],1)
-        self.assertAlmostEqual(vnew[0],2.404392216137085e-04)
-        self.assertAlmostEqual(vnew[1],2.404392216137085e-04)
+        self.assertAlmostEqual(vnew[0],-2.895274275892301)
+        self.assertAlmostEqual(vnew[1],-2.895274275892301)
         self.assertEqual(stop,0)       
         
     
