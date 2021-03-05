@@ -5,7 +5,8 @@ from feval import feval
 
 def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     
-    
+    print("Y")
+    print(y)
     tol = 128*max(np.spacing(float(t)),np.spacing(float(tnew)))
     tol = min(tol, abs(tnew - t))
     
@@ -19,14 +20,14 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     
     tL = t
     yL = np.array(y)
-    vL = np.array(v)
+    vL = v
     [vnew,isterminal,direction] = feval(eventfun,tnew,ynew,eventargs,verify=False)
     #print(vnew,isterminal,direction)
     if len(direction)==0:
       direction = np.zeros(len(vnew))
     tR = tnew
     yR = np.array(ynew)
-    vR = np.array(vnew)
+    vR = vnew
     ttry = tR
     
     #print(tol,tout,yout,iout,tdir,stop,rmin,tL,yL,vL,tR,yR,vR,ttry)
@@ -74,14 +75,16 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
             
                 ttry = tL + tdir * change
                 
-    
-            ytry, discard = ntrp45(ttry,t,y,h,f,idxNonNegative)
-            vtry, discrad1, discard2 = feval(eventfun,ttry,ytry,[],verify=False)
-
             
+            ytry, discard = ntrp45(ttry,t,y,h,f,idxNonNegative)
+#            print(ttry,ytry)
+            vtry, discrad1, discard2 = feval(eventfun,ttry,ytry,[],verify=False)
+#            print("zero")
+#            print(vtry,vL)
             indzc = [i for i in range(len(direction)) if (direction[i]*(vtry[i]-vL[i])>=0) and (vtry[i]*vL[i] < 0 or vtry[i]*vL[i] == 0)]
             
-            
+#            print(type(vR))
+#            print(type(vL))
             if len(indzc)!=0:
                 tswap = tR
                 tR = ttry
@@ -93,7 +96,8 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                 vR = vtry
                 vtry = vswap
                 if lastmoved == 2:
-                    maybe = 0.5 * vL
+                    maybe = [0.5*x for x in vL]
+                    #maybe = 0.5 * vL
                     for i in range(len(maybe)):
                         if abs(maybe[i]) >= rmin:
                             vL[i] = maybe[i]
@@ -110,7 +114,9 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                 vtry = vswap
                 
                 if lastmoved == 1:
-                    maybe = 0.5 * vR
+                    #print(vR)
+                    maybe = [0.5*x for x in vR]
+                    #maybe = 0.5 * vR
                     for i in range(len(maybe)):
                         if abs(maybe[i]) >= rmin:
                             vR[i] = maybe[i]

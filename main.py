@@ -7,8 +7,131 @@ import odeargument as arg
 from feval import feval
 
 
+def simple1():
+    fig = plt.gcf()
+    fig.set_size_inches(8, 6)
+    def dydt(t,y):
+        return y*np.cos(t)
+    
+    tspan = [0,10]
+    y0 = [-1,0,1]
+    r = ode45(dydt,tspan,y0)
+    plt.plot(r.t,r.y[0])
+    plt.plot(r.t,r.y[1])
+    plt.plot(r.t,r.y[2])
+    
+def simple2():
+    fig = plt.gcf()
+    fig.set_size_inches(8, 6)
+    def dydt(t,y):
+        return y*math.cos(t)
+    
+    tspan = [0,10]
+    y0 = [-1,0,1]
+    r = ode45(dydt,tspan,y0)
+    plt.plot(r.t,r.y[0])
+    plt.plot(r.t,r.y[1])
+    plt.plot(r.t,r.y[2])  
+
+def ballode():
+    fig = plt.gcf()
+    fig.set_size_inches(8, 6)
+    
+    def events(t,y):
+        value = [y[0],y[0]]
+        isterminal = [1,1]
+        direction = [-1,-1]
+        return value,isterminal,direction
+    
+    options={'Events':events}
+
+    tspan=[0,30]
+    tstart=0
+    y0 = [0, 20]
+    
+    def dydt(t,y):
+        return [y[1],-9.8]
+    
+    t=np.array([])
+    y=np.array([])
+    for i in range(10):
+        tspan=[tstart,30]
+        r=ode45(dydt,tspan,y0,options)
+        n=len(r.t)
+        y0[1]=0.9*y0[1]
+        t=np.append(t,r.t)
+        y=np.append(y,r.y[0])
+        tstart=r.t[n-1]
+        
+        
+    print(len(t))
+    plt.plot(t,y)
+    plt.scatter(np.arange(len(t)-1),np.diff(t))
+
+def nonnegative():
+    fig = plt.gcf()
+    fig.set_size_inches(8, 6)
+    
+    
+#    def dydt(t,y):
+#        return np.cos(t)
+    def dydt(t,y):
+        return np.cos(t)
+    
+    
+    
+    
+    options={'NonNegative':[1]}
+    tspan=[0,4]
+    y0=[1,2,3]
+    r=ode45(dydt,tspan,y0,options)
+    print(r.y[0])
+    plt.plot(r.t,r.y[0])
+    plt.plot(r.t,r.y[1])
+    plt.plot(r.t,r.y[2])
+
+
+def odemass1():
+    fig = plt.gcf()
+    fig.set_size_inches(8, 6)
+    mass = [[1,0],[0,2]]
+    options={'Mass':mass}
+    
+    def dydt(t,y):
+        return np.cos(t)
+    
+    y0=[1,2]
+    
+    tspan = [0,10]
+    r = ode45(dydt,tspan,y0,options)
+    plt.plot(r.t,r.y[0])
+    plt.plot(r.t,r.y[1])
+
+def odemass2():
+    fig = plt.gcf()
+    fig.set_size_inches(8, 6)
+    
+    def mass(t):
+        return [[t+1,0],[0,3*t+1]]
+    
+    options={'Mass':mass,'MStateDependence':'none'}
+    
+    def dydt(t,y):
+        return np.cos(t)
+    
+    y0=[1,2]
+    
+    tspan = [0,10]
+    r = ode45(dydt,tspan,y0,options)
+    plt.plot(r.t,r.y[0])
+    plt.plot(r.t,r.y[1])
 
 def main():
+    #simple1()
+    odemass2()
+    #nonnegative()
+    #simple1()
+    #ballode()
 #    fig = plt.gcf()
 #    fig.set_size_inches(8, 6)
 #    
@@ -46,61 +169,28 @@ def main():
     
     
     
-    fig = plt.gcf()
-    fig.set_size_inches(8, 6)
-    
-    
-    def dydt(t,y):
-        return np.cos(t)
-    
-    
-    
-    options={'NonNegative':[0,1]}
-    tspan=[0,10]
-    y0=[0,0.1]
-    r=ode45(dydt,tspan,y0,options)
-    print(r.y[0])
-    plt.plot(r.t,r.y[0])
-    plt.plot(r.t,r.y[1])
+#    fig = plt.gcf()
+#    fig.set_size_inches(8, 6)
 #    
-    
-    
-    
-#    def events(t,y):
-#        value = [y[0]]
-#        isterminal = [1]
-#        direction = [-1]
-#        return [value,isterminal,direction]
-#    
-#    options={'Events':events}
-#
-#    tspan=[0,30]
-#    tstart=0
-#    y0 = [0, 20]
 #    
 #    def dydt(t,y):
-#        return [y[1],-9.8]
+#        return np.cos(t)
 #    
-#    t=np.array([])
-#    y=np.array([])
-#    for i in range(10):
-#        tspan=[tstart,30]
-#        r=ode45(dydt,tspan,y0,options)
-#        n=len(r.t)
-#        y0[1]=0.9*y0[1]
-#        t=np.append(t,r.t)
-#        y=np.append(y,r.y[0])
-#        tstart=r.t[n-1]
-#        
-#        
-#    print(len(t))
-#    plt.plot(t,y)
-    #plt.scatter(np.arange(len(t)-1),np.diff(t))
-    #plt.yscale('log')
-    #plt.ylim(10e-7,1)
-    #plt.xlabel('step')
-    #plt.ylabel('h size')
-    #plt.title('Step size python')
+#    
+#    
+#    options={'NonNegative':[0,1]}
+#    tspan=[0,10]
+#    y0=[0,0.1]
+#    r=ode45(dydt,tspan,y0,options)
+#    print(r.y[0])
+#    plt.plot(r.t,r.y[0])
+#    plt.plot(r.t,r.y[1])
+
+#    plt.yscale('log')
+#    plt.ylim(10e-7,1)
+#    plt.xlabel('step')
+#    plt.ylabel('h size')
+#    plt.title('Step size python')
 
     
     
@@ -179,6 +269,6 @@ def main():
 #    plt.title("Solutions of y'' = -2y + 2 cos(t) sin(2t), y(0) = -5,-4,...,4,5")
 ##    plt.xlabel("t")
 ##    plt.ylabel("y")
-    
+
 
 main()

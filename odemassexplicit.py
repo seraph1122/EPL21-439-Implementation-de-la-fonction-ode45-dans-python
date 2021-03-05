@@ -8,25 +8,26 @@ import scipy.sparse.linalg as spl
 
 
 def odemassexplicit(massType,odeFcn,odeArgs,massFcn,massM):
-    
     if massType == 1:
         if type(massM)==type(sp.csr_matrix([])):
             superLU = spl.splu(massM)
-            newArgs = np.array([odeFcn, superLU])
-            odeArgs = np.append(newArgs, np.array(odeArgs))
+            odeArgs = np.array([odeFcn, superLU, odeArgs])
+            #odeArgs = np.append(newArgs, np.array(odeArgs))
             odeFcn = explicitSolverHandleMass1sparse
         else:
             PL, U = lg.lu(massM,permute_l = True)
-            newArgs = np.array([odeFcn, PL, U])
-            odeArgs = np.append(newArgs, np.array(odeArgs))
+            odeArgs = np.array([odeFcn, PL, U, odeArgs])
+#            print(newArgs)
+#            odeArgs = np.append(newArgs, odeArgs)
+#            print(odeArgs)
             odeFcn = explicitSolverHandleMass1
     elif massType==2:
-        newArgs = np.array([odeFcn, massFcn])
-        odeArgs = np.append(newArgs, np.array(odeArgs))
+        odeArgs = np.array([odeFcn, massFcn, odeArgs])
+        #odeArgs = np.append(newArgs, np.array(odeArgs))
         odeFcn = explicitSolverHandleMass2
     else:
-        newArgs = np.array([odeFcn, massFcn])
-        odeArgs = np.append(newArgs, np.array(odeArgs))
+        odeArgs = np.array([odeFcn, massFcn, odeArgs])
+        #odeArgs = np.append(newArgs, np.array(odeArgs))
         odeFcn = explicitSolverHandleMass3
     return odeFcn,odeArgs
 

@@ -10,11 +10,14 @@ def feval(fun,t,y,extra,verify=True):
         allArgs = np.append(mainArgs, extraArgs)
         return fun(*allArgs)
         
-    if type(y)==None:
+    if type(y)==type(None):
         mainArgs = np.array([t])
     else:
         mainArgs = np.array([t, y])
-        
+    
+    
+    
+    
     extraArgs = np.array(extra)
     allArgs = np.append(mainArgs, extraArgs)
     
@@ -22,6 +25,9 @@ def feval(fun,t,y,extra,verify=True):
         result = fun(*allArgs)
     else:
         try:
+            
+            #print(result)
+            print(allArgs)
             result = fun(*allArgs)
             if not ( type(result)==type([]) or type(result)==type(np.array([]))):
                 result = np.zeros(len(y))

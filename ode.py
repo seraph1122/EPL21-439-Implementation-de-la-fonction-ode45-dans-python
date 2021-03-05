@@ -62,8 +62,10 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     
     
     Mtype, M, Mfun =  odemass(odeFcn,t0,y0,options,varargin)
+    print(Mtype,M,Mfun)
     if Mtype > 0:
         odeFcn,odeArgs = odemassexplicit(Mtype,odeFcn,odeArgs,Mfun,M)
+        print(odeArgs)
         f0 = feval(odeFcn,t0,y0,odeArgs)
         nfevals = nfevals + 1;
     
@@ -168,11 +170,11 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
             hA = h * A
             hB = h * B
             #print(varargin)
-            f[:,1]=feval(odeFcn,t+hA[0],y+np.matmul(f,hB[:,0]),varargin)
-            f[:,2]=feval(odeFcn,t+hA[1],y+np.matmul(f,hB[:,1]),varargin)
-            f[:,3]=feval(odeFcn,t+hA[2],y+np.matmul(f,hB[:,2]),varargin)
-            f[:,4]=feval(odeFcn,t+hA[3],y+np.matmul(f,hB[:,3]),varargin)
-            f[:,5]=feval(odeFcn,t+hA[4],y+np.matmul(f,hB[:,4]),varargin)
+            f[:,1]=feval(odeFcn,t+hA[0],y+np.matmul(f,hB[:,0]),odeArgs)
+            f[:,2]=feval(odeFcn,t+hA[1],y+np.matmul(f,hB[:,1]),odeArgs)
+            f[:,3]=feval(odeFcn,t+hA[2],y+np.matmul(f,hB[:,2]),odeArgs)
+            f[:,4]=feval(odeFcn,t+hA[3],y+np.matmul(f,hB[:,3]),odeArgs)
+            f[:,5]=feval(odeFcn,t+hA[4],y+np.matmul(f,hB[:,4]),odeArgs)
 
             #print(odeFcn)
             #print(f)
@@ -184,7 +186,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
             
             
             ynew=y+np.matmul(f,hB[:,5])
-            f[:,6]=feval(odeFcn,tnew,ynew,varargin)
+            f[:,6]=feval(odeFcn,tnew,ynew,odeArgs)
             nfevals=nfevals+6
             
 #            print(h)
@@ -212,7 +214,8 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
         nsteps+=1
         
         if haveEventFcn:
-            te,ye,ie,valt,stop=odezero([],eventFcn,eventArgs,valt,t,y,tnew,ynew,t0,h,f,idxNonNegative)
+            
+            te,ye,ie,valt,stop=odezero([],eventFcn,eventArgs,valt,t,np.transpose(np.array([y])),tnew,ynew,t0,h,f,idxNonNegative)
             
             if len(te)!=0:
                 if True: #Temp
@@ -224,7 +227,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
                     ieout=np.append(ieout,ie) #ieout is 2d
                 if stop:
                     taux = t + (te[-1] - t)*A
-                    discard,f[:,1:7]=ntrp45(taux,t,np.transpose([y]),h,f,idxNonNegative)
+                    discard,f[:,1:7]=ntrp45(taux,t,np.transpose(np.array([y])),h,f,idxNonNegative)
                     tnew = te[-1]
                     ynew = ye[:,-1]
                     h = tnew - t
@@ -245,8 +248,10 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
             nout_new=refine
             tout_new=tref.copy()
             tout_new=np.append(tout_new,tnew)
-            print(y)
-            yout_new,discard=ntrp45(tref,t,np.transpose([y]),h,f,idxNonNegative) #Fix y orientation
+            #print(y)
+            #y=np.transpose(np.array([y]))
+            #print(y)
+            yout_new,discard=ntrp45(tref,t,np.transpose(np.array([y])),h,f,idxNonNegative) #Fix y orientation
             yout_new=np.transpose(yout_new)
             yout_new=np.append(yout_new,np.array([ynew]),axis=0)
             yout_new=np.transpose(yout_new)
