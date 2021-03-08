@@ -25,9 +25,6 @@ def feval(fun,t,y,extra,verify=True):
         result = fun(*allArgs)
     else:
         try:
-            
-            #print(result)
-            print(allArgs)
             result = fun(*allArgs)
             if not ( type(result)==type([]) or type(result)==type(np.array([]))):
                 result = np.zeros(len(y))

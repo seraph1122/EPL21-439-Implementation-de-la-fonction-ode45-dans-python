@@ -2,24 +2,23 @@ import numpy as np
 from feval import feval
 import itertools
 
-def odearguments(FcnHandlesUsed, solver, ode, tspan, y0, options, extras): 
+def odearguments(solver, ode, tspan, y0, options, extras): 
     
     neq=len(y0)
     
     if None in tspan:
         raise Exception('{}:odearguments:TspanNoneTypeValues'.format(solver))
     
-    if FcnHandlesUsed:
-        if len(tspan)==0 or len(y0)==0:
-            raise Exception('{}:odearguments:TspanOrY0NotSupplied'.format(solver))
-        if len(tspan)<2:
-            raise Exception('{}:odearguments:SizeTspan'.format(solver))
-        htspan = abs(tspan[1]-tspan[0])
-        ntspan = len(tspan)
-        t0 = tspan[0]
-        nex = 2
-        tfinal = tspan[1]
-        args = extras
+    if len(tspan)==0 or len(y0)==0:
+        raise Exception('{}:odearguments:TspanOrY0NotSupplied'.format(solver))
+    if len(tspan)<2:
+        raise Exception('{}:odearguments:SizeTspan'.format(solver))
+    htspan = abs(tspan[1]-tspan[0])
+    ntspan = len(tspan)
+    t0 = tspan[0]
+    nex = 2
+    tfinal = tspan[1]
+    args = extras
         
     neq = len(y0)
     

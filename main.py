@@ -14,7 +14,7 @@ def simple1():
         return y*np.cos(t)
     
     tspan = [0,10]
-    y0 = [-1,0,1]
+    y0 = [1,2,3]
     r = ode45(dydt,tspan,y0)
     plt.plot(r.t,r.y[0])
     plt.plot(r.t,r.y[1])
@@ -127,8 +127,8 @@ def odemass2():
     plt.plot(r.t,r.y[1])
 
 def main():
-    #simple1()
-    odemass2()
+    simple1()
+    #odemass2()
     #nonnegative()
     #simple1()
     #ballode()

@@ -38,7 +38,7 @@ class Testodemassexplicit(unittest.TestCase):
     
     
     def test_odemassexplicit_mass1(self):
-        odeFcn,odeArgs = odemassexplicit(1,self.f,self.extra,None,self.mass1)
+        odeFcn,odeArgs = odemassexplicit(1,self.f,self.extra,[],self.mass1)
         PL, U = lg.lu(self.mass1,permute_l = True)
         y = feval(odeFcn,self.t,self.y,odeArgs)
         result = np.array([1,2,3])
@@ -56,7 +56,7 @@ class Testodemassexplicit(unittest.TestCase):
         
         
     def test_odemassexplicit_mass1sparse(self):
-        odeFcn,odeArgs = odemassexplicit(1,self.f,self.extra,None,sp.csr_matrix(self.mass1))
+        odeFcn,odeArgs = odemassexplicit(1,self.f,self.extra,[],sp.csr_matrix(self.mass1))
         superLU = spl.splu(sp.csr_matrix(self.mass1))
         y = feval(odeFcn,self.t,self.y,odeArgs)
         result = np.array([1,2,3])
@@ -73,7 +73,7 @@ class Testodemassexplicit(unittest.TestCase):
         
         
     def test_odemassexplicit_mass2(self):
-        odeFcn,odeArgs = odemassexplicit(2,self.f,self.extra,self.mass2,None)
+        odeFcn,odeArgs = odemassexplicit(2,self.f,self.extra,self.mass2,[])
         y = feval(odeFcn,self.t,self.y,odeArgs)
         result = np.array([1,2,3])
 
@@ -88,7 +88,7 @@ class Testodemassexplicit(unittest.TestCase):
         
         
     def test_odemassexplicit_mass3(self):
-        odeFcn,odeArgs = odemassexplicit(3,self.f,self.extra,self.mass3,None)
+        odeFcn,odeArgs = odemassexplicit(3,self.f,self.extra,self.mass3,[])
         y = feval(odeFcn,self.t,self.y,odeArgs)
         result = np.array([1,2,3])
         

@@ -9,10 +9,11 @@ from odezero import odezero
 from odemass import odemass
 from odemassexplicit import odemassexplicit
 from odenonnegative import odenonnegative
+from odeoptions import odeoptions
 import itertools
 import math
 
-def ode45(odefun,tspan,y0,options=None,varargin=[]):
+def ode45(odefun,tspan,y0,options={},varargin=[]):
     
     solver_name='ode45'
     
@@ -20,13 +21,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     TODO : Check inputs
     '''
     
-    if options==None:
-        options={}
-    
-    if type(options)!=type({}):
-        raise Exception('{}:ode45:OptionsNotDictionary'.format(solver_name))
-    
-    
+        
     
     #Stats
     nsteps=0
@@ -34,14 +29,13 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     nfevals = 0
   
     #Outputs
-    FcnHandlesUsed=callable(odefun)
     output_sol=0 #Temp
     
     ''' 100 - 110
     TODO : Outputs
     '''
     
-    neq, tspan, ntspan, nex, t0, tfinal, tdir, y0, f0, odeArgs, odeFcn, options, threshold, rtol, normcontrol, normy, hmax, htry, htspan, dataType = odearguments(True, solver_name, odefun, tspan, y0, options, varargin)
+    neq, tspan, ntspan, nex, t0, tfinal, tdir, y0, f0, odeArgs, odeFcn, options, threshold, rtol, normcontrol, normy, hmax, htry, htspan, dataType = odearguments(solver_name, odefun, tspan, y0, options, varargin)
     nfevals = nfevals + 1
     dataType='float64'
     
@@ -53,7 +47,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=[]):
     refine=max(1,odeget(options,'Refine',4))
     s=np.array(range(1,refine))/refine #Temp
     
-    haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(FcnHandlesUsed,odeFcn,t0,y0,options,varargin)
+    haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(odeFcn,t0,y0,options,varargin)
     
     ''' 146 - 148
     TODO : Handle Event Function
