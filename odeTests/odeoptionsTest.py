@@ -55,7 +55,7 @@ class Testodeoptions(unittest.TestCase):
             odeoptions(options, t, y, extra)
             options = {'AbsTol':[0, 1]}
             odeoptions(options, t, y, extra)
-            options = {'AbsTol':[0, 1.0]}
+            options = {'AbsTol':np.array([0, 1.0])}
             odeoptions(options, t, y, extra)
         except:
             self.fail("AbsTol option correct test failed")
@@ -202,22 +202,20 @@ class Testodeoptions(unittest.TestCase):
         try:
             extra = []
             def events(t, y):
-                return [[3.2, 2.1],[1, 0],[-1, 1]] 
+                return [3.2, 2.1],[1, 0],[-1, 1]
             options = {'Events':events}
             odeoptions(options, t, y, extra)
             
             extra = [1, [3, 2]]
             def events(t, y, c, b):
-                return [[3.2, 2.1],[1, 0],[-1, 1]]
+                return [3.2, 2.1],[1, 0],[-1, 1]
             options = {'Events':events}
             odeoptions(options, t, y, extra)
             
-            y = np.array([1, 2])
-            extra = np.array([[3, 2]])
+            y = [1, 2]
+            extra = [[3, 2]]
             def events(t, y, c):
-                print(c[0])
-                print(type(c[0]))
-                return [[3.2, c[0]],[1, 0],[-1, 1]]
+                return [3.2, c[0]],[1, 0],[-1, 1]
             options = {'Events':events}
             odeoptions(options, t, y, extra)
 
@@ -231,27 +229,27 @@ class Testodeoptions(unittest.TestCase):
         self.assertRaises(TypeError, odeoptions, options, t, y, extra)
         
         def events(t, y):
-             return [[3.2, 2.1, 3],[1, 0],[-1, 1]]
+             return [3.2, 2.1, 3],[1, 0],[-1, 1]
         options = {'Events':events}
         self.assertRaises(ValueError, odeoptions, options, t, y, extra)
         
         def events(t, y):
-             return [[3.2, 2.1],[1, 0, 1],[-1, 1]]
+             return [3.2, 2.1],[1, 0, 1],[-1, 1]
         options = {'Events':events}
         self.assertRaises(ValueError, odeoptions, options, t, y, extra)
         
         def events(t, y):
-             return [[3.2, 2.1],[1, 0],[-1, 1, 0]]
+             return [3.2, 2.1],[1, 0],[-1, 1, 0]
         options = {'Events':events}
         self.assertRaises(ValueError, odeoptions, options, t, y, extra)
         
         def events(t, y):
-             return [[3.2, '2.1'],[1, 0],[-1, 1]]
+             return [3.2, '2.1'],[1, 0],[-1, 1]
         options = {'Events':events}
         self.assertRaises(ValueError, odeoptions, options, t, y, extra)
         
         def events(t, y):
-             return [[3.2, '2.1'],[1, 0],[-1, 1]]
+             return [3.2, '2.1'],[1, 0],[-1, 1]
         options = {'Events':events}
         self.assertRaises(ValueError, odeoptions, options, t, y, extra)
         
@@ -264,28 +262,6 @@ class Testodeoptions(unittest.TestCase):
              return [[3.2, 2.1],[1, 0],[0, 2]]
         options = {'Events':events}
         self.assertRaises(ValueError, odeoptions, options, t, y, extra)
-    
-    
-    def test_odeoptions_maxstep(self):
-        y = [1, 2]
-        t = 0
-        extra = []
-        try:
-            options = {'MaxStep':1}
-            odeoptions(options, t, y, extra)
-            options = {'MaxStep':5e-2}
-            odeoptions(options, t, y, extra)
-        except:
-            self.fail("MaxStep option correct test failed")
-        
-        options = {'MaxStep':-1e-2}
-        self.assertRaises(ValueError, odeoptions, options, t, y, extra)
-        options = {'MaxStep':-1}
-        self.assertRaises(ValueError, odeoptions, options, t, y, extra)
-        options = {'MaxStep':[1.0]}
-        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
-        options = {'MaxStep':'on'}
-        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
     
     
     def test_odeoptions_mass(self):
@@ -302,12 +278,12 @@ class Testodeoptions(unittest.TestCase):
             odeoptions(options, t, y, extra)
             
             def mass(t,c):
-                return np.array([[t, 0],[c, t+1]])
+                return [[t, 0],[c, t+1]]
             options = {'Mass':mass}
             odeoptions(options, t, y, [0])
             
             def mass(t,y):
-                return np.array([[t, y[0]],[0, t+1]])
+                return [[t, y[0]],[0, t+1]]
             options = {'Mass':mass}
             odeoptions(options, t, y, extra)
             
