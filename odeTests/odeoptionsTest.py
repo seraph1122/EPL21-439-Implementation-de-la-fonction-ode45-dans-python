@@ -20,6 +20,13 @@ class Testodeoptions(unittest.TestCase):
         except:
             self.fail("No option correct test failed")
     
+    def test_odeoptions_wrongoptions(self):
+        options = {'Jacobian':[[1,2],[3.4,4]]}
+        y = [1, 2]
+        t = 1
+        extra = []
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+    
     def test_odeoptions_reltol(self):
         y = [1, 2]
         t = 0
@@ -55,7 +62,7 @@ class Testodeoptions(unittest.TestCase):
             odeoptions(options, t, y, extra)
             options = {'AbsTol':[0, 1]}
             odeoptions(options, t, y, extra)
-            options = {'AbsTol':np.array([0, 1.0])}
+            options = {'AbsTol':[0, 1.0]}
             odeoptions(options, t, y, extra)
         except:
             self.fail("AbsTol option correct test failed")
@@ -272,6 +279,9 @@ class Testodeoptions(unittest.TestCase):
             options = {'Mass':[[1,1],[0,2]]}
             odeoptions(options, t, y, extra)
             
+            options = {'Mass':np.array([[1,1],[0,2]])}
+            odeoptions(options, t, y, extra)
+            
             def mass(t):
                 return [[t, 0],[0, t+1]]
             options = {'Mass':mass}
@@ -279,6 +289,16 @@ class Testodeoptions(unittest.TestCase):
             
             def mass(t,c):
                 return [[t, 0],[c, t+1]]
+            options = {'Mass':mass}
+            odeoptions(options, t, y, [0])
+            
+            def mass(t):
+                return np.array([[t, 0],[0, t+1]])
+            options = {'Mass':mass}
+            odeoptions(options, t, y, extra)
+            
+            def mass(t,c):
+                return np.array([[t, 0],[c, t+1]])
             options = {'Mass':mass}
             odeoptions(options, t, y, [0])
             
@@ -292,36 +312,155 @@ class Testodeoptions(unittest.TestCase):
             options = {'Mass':mass}
             odeoptions(options, t, y, [1])
             
+            def mass(t,y):
+                return np.array([[t, y[0]],[0, t+1]])
+            options = {'Mass':mass}
+            odeoptions(options, t, y, extra)
+            
+            def mass(t,y,c):
+                return np.array([[t, y[0]],[c, t+1]])
+            options = {'Mass':mass}
+            odeoptions(options, t, y, [1])
+            
             
         except:
             self.fail("Mass option correct test failed")
         
         options = {'Mass':'on'}
         self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        options = {'Mass':[1,2,4]}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        options = {'Mass':[1.2,3]}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        options = {'Mass':[1,'one']}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        options = {'Mass':[[1,2],1]}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        options = {'Mass':[[1,2],[1,2,2]]}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        options = {'Mass':[[1,2],[1,'on']]}
+        self.assertRaises(ValueError, odeoptions, options, t, y, extra)
+        
+        
+        def mass(t,c):
+            return [[1,2],[1,2]]
+        options = {'Mass':mass}
+        self.assertRaises(Exception, odeoptions, options, t, y, [1, 2])
+        
+        def mass(t,y,c):
+            return [[1,2],[1,2]]
+        options = {'Mass':mass}
+        self.assertRaises(Exception, odeoptions, options, t, y, extra)
+        
+        
+        def mass(t):
+            return 'on'
+        options = {'Mass':mass}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        
+        def mass(t):
+            return [1,2,4]
+        options = {'Mass':mass}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        
+        def mass(t):
+            return [1.2,3]
+        options = {'Mass':mass}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        
+        def mass(t):
+            return [[1,2],1]
+        options = {'Mass':mass}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        
+        def mass(t):
+            return [[1,2],[1,2,2]]
+        options = {'Mass':mass}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        
+        def mass(t):
+            return [[1,2],[1,'on']]
+        options = {'Mass':mass}
+        self.assertRaises(ValueError, odeoptions, options, t, y, extra)
+        
+        def mass(t,y):
+            return 'on'
+        options = {'Mass':mass}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        
+        def mass(t,y):
+            return [1,2,4]
+        options = {'Mass':mass}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        
+        def mass(t,y):
+            return [1.2,3]
+        options = {'Mass':mass}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        
+        def mass(t,y):
+            return [[1,2],1]
+        options = {'Mass':mass}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        
+        def mass(t,y):
+            return [[1,2],[1,2,2]]
+        options = {'Mass':mass}
+        self.assertRaises(TypeError, odeoptions, options, t, y, extra)
+        
+        def mass(t,y):
+            return [[1,2],[1,'on']]
+        options = {'Mass':mass}
+        self.assertRaises(ValueError, odeoptions, options, t, y, extra)
+        
+    
+    def test_odeoptions_mstatedependence(self):
+        y = [1, 2]
+        t = 0
+        extra = []
+        try:
+            options = {'MStateDependence':'weak'}
+            odeoptions(options, t, y, extra)
+            options = {'MStateDependence':'none'}
+            odeoptions(options, t, y, extra)
+        except:
+            self.fail("Mass option correct test failed")
+        
+        options = {'MStateDependence':'strong'}
+        self.assertRaises(ValueError, odeoptions, options, t, y, extra)
+        options = {'MStateDependence':1.0}
+        self.assertRaises(ValueError, odeoptions, options, t, y, extra)
+        options = {'MStateDependence':['weak']}
+        self.assertRaises(ValueError, odeoptions, options, t, y, extra)
         
     
     def test_odeoptions_alloptions(self):
-        def events(t,y):
-            return [[1,1],[1,1],[1,1]]
         
-        options = {'RelTol':1e-2,
-            'AbsTol':1e-3,
-            'Events':events}
-        #Stats
-        #OutputFcn
-        #OutputSel
-#            'NormControl':'on',
-#            'Refine',
-#            'MaxStep',
-#            'InitialStep',
-#            'NonNegative',      
-#            'Events',  
-#            'Mass':[],
-#            'MStateDependence'}
+        def mass(t,y,c):
+                return [[t, y[0]],[c, t+1]]
+        
+        def events(t,y,c):
+            return [[1,1],[1,1],[1,1]]
         
         y = [1, 2]
         t = 0
-        odeoptions(options, t, y, [])
+        extra = [1]
+        try:
+            options = {'RelTol':1e-2,
+                       'AbsTol':[1e-4,1e-5],
+                       'NormControl':'on',
+                       'NonNegative':[1],
+                       'Refine':3,
+                       'Stats':'off',
+                       'InitialStep':2.3,
+                       'MaxStep': 4.2e1,
+                       'Events':events,
+                       'Mass':mass,
+                       'MStateDependence':'weak'}
+            odeoptions(options, t, y, extra)
+        except:
+            self.fail("All option correct test failed")
+        
         
 if __name__ == "__main__":
     unittest.main()

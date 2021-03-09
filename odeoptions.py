@@ -8,12 +8,13 @@ def odeoptions(options, t, y, varargin):
     
     if type(options) != type({}):
         raise TypeError("odeoptions: options is not a dictionary")
-        
+    
+    #np.dtype(x).type==np.dtype(int).type, num.Number
     
     for (key,value) in options.items():
         
         if key == 'RelTol' or key == 'InitialStep' or key == 'MaxStep':
-            if isinstance(value,num.Number):
+            if isinstance(value,float) or isinstance(value,int):
                 if value < 0:
                     raise ValueError("odeoptions: " + str(key) + ": int/float must be positive")            
             else:
@@ -22,19 +23,19 @@ def odeoptions(options, t, y, varargin):
 
         
         elif key == 'AbsTol':
-            if isinstance(value,num.Number):
+            if isinstance(value,float) or isinstance(value,int):
                 if value < 0:
                     raise ValueError('odeoptions: AbsTol: int/float must be positive')
-            elif isinstance(value,list) or isinstance(value,np.ndarray):
+            elif isinstance(value,list):
                 if len(value) != len(y):
                     raise IndexError('odeoptions: AbsTol: list/ndarray must have the length as y0')
                 else:
                     for i in value:
-                        if isinstance(i,num.Number):
+                        if isinstance(i,float) or isinstance(i,int):
                             if i < 0:
-                                raise ValueError('odeoptions: AbsTol: list/ndarray must have all elements be positive')
+                                raise ValueError('odeoptions: AbsTol: list must have all elements be positive')
                         else:
-                            raise TypeError('odeoptions: AbsTol: list/ndarray must be have all elements be positive int/float')
+                            raise TypeError('odeoptions: AbsTol: list must be have all elements be positive int/float')
             else:
                 raise TypeError('odeoptions: AbsTol: must a int/float or list of int/float')
           
@@ -51,9 +52,9 @@ def odeoptions(options, t, y, varargin):
                 for i in value:
                     if isinstance(i,int):
                         if i >= len(y) or i < 0:
-                            raise IndexError('odeoptions: NonNegative: elements must be index of y')
+                            raise IndexError('odeoptions: NonNegative: elements must be ints indicating an index of y')
                     else:
-                        raise TypeError('odeoptions: NonNegative: list must only contain int')   
+                        raise TypeError('odeoptions: NonNegative: list must only contain ints')   
             else:
                 raise TypeError('odeoptions: NonNegative: must be a list')
                 
@@ -85,43 +86,34 @@ def odeoptions(options, t, y, varargin):
                             raise ValueError('odeoptions: Event: direction must be either 0, 1 or -1')
                 
         
-        
         elif key == 'Mass':
-            if not callable(value):
-                if isinstance(value,np.ndarray) or isinstance(value,list):
-                    if len(value) != len(y):
-                        raise ValueError('odeoptions: Mass: matrix must be a square matrix with size same as length of y')
-                    for i in value:
-                        if len(i) != len(y):
-                            raise ValueError('odeoptions: Mass: matrix must be a square matrix with with size same as length of y')
-                else:
-                    raise ValueError('odeoptions: Mass: matrix or function must be a square matrix with size same as length of y of type list')
-            else:
+            if callable(value):
                 sig = signature(value)
                 if len(sig.parameters) == 2 + len(varargin):
-                    mass = value(t,y,*varargin)
-                    if isinstance(mass,list):
-                        if len(mass) != len(y):
-                            raise ValueError('odeoptions: Mass: function must return a square matrix with size same as length of y')
-                        for i in mass:
-                            if len(i) != len(y):
-                                raise ValueError('odeoptions: Mass: function must return a square matrix with with size same as length of y')
-                    else:
-                        raise ValueError('odeoptions: Mass: function must return a square matrix of type list')
+                    mass = value(t,y,*varargin)   
                 elif len(sig.parameters) == 1 + len(varargin):
                     mass = value(t,*varargin)
-                    if isinstance(mass,list):
-                        if len(mass) != len(y):
-                            raise ValueError('odeoptions: Mass: function must return a square matrix with size same as length of y')
-                        for i in mass:
-                            if len(i) != len(y):
-                                raise ValueError('odeoptions: Mass: function must return a square matrix with with size same as length of y')
-                    else:
-                        raise ValueError('odeoptions: Mass: function must return a square matrix of type list')
-
                 else:
-                    raise Exception('odeoptions: Mass: function must either be time dependent of state/time dependent')
-                    
+                    raise Exception('odeoptions: Mass: function must either be time dependent or state/time dependent')
+            else:
+                mass = value
+            
+            if isinstance(mass,list) or isinstance(mass,np.ndarray):
+                if len(mass) == len(y):
+                    for i in mass:
+                        if not isinstance(i,list) and not isinstance(i,np.ndarray):
+                            raise TypeError('odeoptions: Mass: function must return a square matrix of type list/ndarray')
+                        if len(i) != len(y):
+                            raise TypeError('odeoptions: Mass: function must return a square matrix with size same as length of y')
+                        for j in i:
+                            if not isinstance(j,num.Number):
+                                raise ValueError('odeoptions: Mass: matrix must have elements of type int/float')
+                            
+                else:
+                    raise TypeError('odeoptions: Mass: function must return a square matrix with size same as length of y')
+            else:
+                raise TypeError('odeoptions: Mass: function must return a square matrix of type list/ndarray')
+                              
         
         elif key == 'MStateDependence':
             if value != 'none' and value != 'weak':
@@ -137,6 +129,5 @@ def odeoptions(options, t, y, varargin):
         else:
             raise TypeError('odeoptions: ' + str(key) + ' is not a supported option')
 
-#def isInteger,isFloat,isIntegerList,isFLoatList,isSquareMatrix, np.dtype(x).type==np.dtype(int).type
         
         
