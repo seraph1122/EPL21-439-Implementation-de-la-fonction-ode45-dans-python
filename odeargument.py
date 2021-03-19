@@ -1,6 +1,9 @@
 import numpy as np
 from feval import feval
+from odeoptions import odeoptions
 import itertools
+
+
 
 def odearguments(solver, ode, tspan, y0, options, extras): 
     
@@ -64,6 +67,7 @@ def odearguments(solver, ode, tspan, y0, options, extras):
     
     odeFcn=ode
     
+    odeoptions(options, tspan[0], y0, extras)
     
     
     return neq, tspan, ntspan, nex, t0, tfinal, tdir, y0, f0, args, odeFcn, options, threshold, rtol, normcontrol, normy, hmax, htry, htspan, dataType

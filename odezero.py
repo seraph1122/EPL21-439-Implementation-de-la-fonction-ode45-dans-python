@@ -5,8 +5,8 @@ from feval import feval
 
 def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     
-    print("Y")
-    print(y)
+    #print("Y")
+    #print(y)
     tol = 128*max(np.spacing(float(t)),np.spacing(float(tnew)))
     tol = min(tol, abs(tnew - t))
     
