@@ -11,7 +11,7 @@ def simple1():
     fig = plt.gcf()
     fig.set_size_inches(8, 6)
     def dydt(t,y):
-        return y*np.cos(t)
+        return [y[0]*np.cos(t),y[1]*np.cos(t),y[2]*np.cos(t)]
     
     tspan = [0,10]
     y0 = [1,2,3]
@@ -24,7 +24,7 @@ def simple2():
     fig = plt.gcf()
     fig.set_size_inches(8, 6)
     def dydt(t,y):
-        return y*math.cos(t)
+        return [y*math.cos(t),y*math.cos(t),y*math.cos(t)]
     
     tspan = [0,10]
     y0 = [-1,0,1]
@@ -43,7 +43,7 @@ def ballode():
         direction = [-1,-1]
         return value,isterminal,direction
     
-    options={'Events':events}
+    options={'Events':events,'NormControl':'on'}
 
     tspan=[0,30]
     tstart=0
@@ -76,7 +76,7 @@ def nonnegative():
 #    def dydt(t,y):
 #        return np.cos(t)
     def dydt(t,y):
-        return np.cos(t)
+        return [np.cos(t),np.cos(t),np.cos(t)]
     
     
     
@@ -98,7 +98,7 @@ def odemass1():
     options={'Mass':mass}
     
     def dydt(t,y):
-        return np.cos(t)
+        return [np.cos(t),np.cos(t)]
     
     y0=[1,2]
     
@@ -117,7 +117,7 @@ def odemass2():
     options={'Mass':mass,'MStateDependence':'none'}
     
     def dydt(t,y):
-        return np.cos(t)
+        return [np.cos(t),np.cos(t)]
     
     y0=[1,2]
     
@@ -168,9 +168,9 @@ def main():
     #orbit()
     #ballode()
     simple1()
-    #odemass2()
-    #nonnegative()
-    #simple1()
+    odemass2()
+    nonnegative()
+    simple1()
     #ballode()
 #    fig = plt.gcf()
 #    fig.set_size_inches(8, 6)

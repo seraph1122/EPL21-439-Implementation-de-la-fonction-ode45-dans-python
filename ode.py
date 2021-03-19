@@ -23,18 +23,10 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
     nfevals = 0
   
     
-    #Outputs
-    output_sol=1 #Temp
-    
     neq, tspan, ntspan, nex, t0, tfinal, tdir, y0, f0, odeArgs, odeFcn, options, threshold, rtol, normcontrol, normy, hmax, htry, htspan, dataType = odearguments(solver_name, odefun, tspan, y0, options, varargin)
     nfevals = nfevals + 1
     dataType='float64'
     
-    ''' 118 - 144
-    TODO : Handle Outputs
-    '''
-
-    #haveOutputFcn =1#Temp
     
     refine=max(1,odeget(options,'Refine',4))
     if len(tspan) > 2:
@@ -45,29 +37,27 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
         outputAt = 'RefinedSteps'
         s=np.array(range(1,refine))/refine #Temp
     
+    
+    printstats = odeget(options,'Stats','off')
+    
+    
     haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(odeFcn,t0,y0,options,varargin)
-    
-    ''' 146 - 148
-    TODO : Handle Event Function
-    '''
-    
     
     
     Mtype, M, Mfun =  odemass(odeFcn,t0,y0,options,varargin)
-    #print(Mtype,M,Mfun)
     if Mtype > 0:
         odeFcn,odeArgs = odemassexplicit(Mtype,odeFcn,odeArgs,Mfun,M)
-        print(odeArgs)
         f0 = feval(odeFcn,t0,y0,odeArgs)
         nfevals = nfevals + 1;
     
-    nonNegative=0 #Temp
-    
+        
     idxNonNegative = odeget(options,'NonNegative',[])
+    nonNegative = False
     if len(idxNonNegative) != 0:
         odeFcn,thresholdNonNegative = odenonnegative(odeFcn,y0,threshold,idxNonNegative);
         f0 = feval(odeFcn,t0,y0,odeArgs)
         nfevals = nfevals + 1
+        nonNegative = True
     
     
     t=t0
@@ -103,39 +93,27 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
     
     
     E = np.array([[71./57600.], [0.], [-71./16695.], [71./1920.], [-17253./339200.], [22./525.], [-1./40.]],dtype='float64')
-    f=np.zeros((neq,7),dtype='float64')#,dtype=dataType)
-    hmin=16*np.finfo(float(t)).eps
+    f=np.zeros((neq,7),dtype='float64')
+    hmin=16*np.spacing(float(t))
     np.set_printoptions(precision=16)    
     
-    if len(htry)==0:
+    if htry==0:
         absh = min(hmax, htspan)
         if normcontrol: #TODO
-            if len(normy)==0:
-                rh=(np.linalg.norm(f0)/ threshold)/ (0.8 * math.pow(rtol,power))
-            else:
-                rh=(np.linalg.norm(f0)/ max(threshold,max(normy)))/ (0.8 * math.pow(rtol,power))
+            rh=(np.linalg.norm(f0)/ max(normy, threshold))/ (0.8 * math.pow(rtol,power))
         else:
             rh=np.linalg.norm(f0 / np.maximum(np.abs(y),np.repeat(threshold,len(y))),np.inf) / (0.8 * math.pow(rtol,power))
-            
+        print(normy, threshold, rh)
         if (absh * rh) > 1:
             absh =1/rh
         absh = max(absh,hmin)
     else:
-        if len(htry)==0:
-            absh=min(absh,hmin)
-        else:
-            absh=min(absh,max(hmin,max(htry)))
+        absh=min(absh,max(hmin,htry))
     
     f[:,0]=f0
     
-    #print(absh)
-    
-    ''' 232 - 236
-    TODO : Init ouput function
-    '''
     
     ynew=np.zeros(neq,dtype='float64')
-        
     
     done=False
     while not done:
