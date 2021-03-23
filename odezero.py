@@ -5,8 +5,10 @@ from feval import feval
 
 def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     
+    #print(v,t,y,tnew,ynew,t0,h,f,idxNonNegative)
     #print("Y")
     #print(y)
+    #print(t)
     tol = 128*max(np.spacing(float(t)),np.spacing(float(tnew)))
     tol = min(tol, abs(tnew - t))
     
@@ -21,7 +23,9 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     tL = t
     yL = np.array(y)
     vL = v
-    [vnew,isterminal,direction] = feval(eventfun,tnew,ynew,eventargs,verify=False)
+    #print(feval(eventfun,tnew,ynew,eventargs))
+    [vnew,isterminal,direction] = feval(eventfun,tnew,ynew,eventargs)
+    #print(vnew,isterminal,direction)
     #print(vnew,isterminal,direction)
     if len(direction)==0:
       direction = np.zeros(len(vnew))
@@ -39,7 +43,7 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                 if lastmoved != 0:
                     raise Exception('ode45:odezero:LostEvent')
                 return tout,yout,iout,vnew,stop
-            
+
             delta = tR - tL
             if abs(delta) <= tol:
                 break
@@ -59,7 +63,7 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                             maybe = 0.5
                     elif vR[j] == 0.0:
                         if (tdir*ttry < tdir*tL) and (vtry[j] != vL[j]):
-                            maybe = vL[j] * (tL-ttry) / ((vtry[j]-vL) * delta)
+                            maybe = vL[j] * (tL-ttry) / ((vtry[j]-vL[j]) * delta)
                             if (maybe < 0) or (maybe > 1):
                                 maybe = 0.5
                         else:
@@ -77,8 +81,9 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                 
             
             ytry, discard = ntrp45(ttry,t,y,h,f,idxNonNegative)
-#            print(ttry,ytry)
-            vtry, discrad1, discard2 = feval(eventfun,ttry,ytry,[],verify=False)
+            ytry = ytry[0]
+            #print(ttry,ytry)
+            [vtry, discrad1, discard2] = feval(eventfun,ttry,ytry,eventargs)
 #            print("zero")
 #            print(vtry,vL)
             indzc = [i for i in range(len(direction)) if (direction[i]*(vtry[i]-vL[i])>=0) and (vtry[i]*vL[i] < 0 or vtry[i]*vL[i] == 0)]
@@ -122,10 +127,10 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                             vR[i] = maybe[i]
                     
                 lastmoved = 1
-
+        
         ntout=np.array([tR for index in range(len(indzc))])
         nyout=np.tile(np.transpose([yR]),len(indzc))[0]
-        niout=np.array([indzc[index] for index in range(len(indzc))]) #indzc is vertical fix
+        niout=np.array([[indzc[index]] for index in range(len(indzc))]) #indzc is vertical fix
         if len(tout)==0:
             tout=ntout
             yout=nyout
@@ -148,7 +153,7 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
             vtry = vR
             tL = tR + tdir*0.5*tol
             yL,discard = ntrp45(tL,t,y,h,f,idxNonNegative)
-            vL, discard1, discard2 = feval(eventfun,tL,yL,[],verify=False)
+            [vL, discard1, discard2] = feval(eventfun,tL,yL,eventargs)
             tR = tnew
             yR = ynew
             vR = vnew

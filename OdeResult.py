@@ -1,6 +1,6 @@
 import numpy as np
 
-class OdeResult:
+class odeResult:
     """
     Parameters
     ----------

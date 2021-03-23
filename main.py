@@ -11,10 +11,11 @@ def simple1():
     fig = plt.gcf()
     fig.set_size_inches(8, 6)
     def dydt(t,y):
-        return [y[0]*np.cos(t),y[1]*np.cos(t),y[2]*np.cos(t)]
+        return [y[0]*np.cos(t),y[1]*np.cos(t)]
     
     tspan = [0,10]
-    y0 = [1,2,3]
+    y0 = [1,2]
+    options={'NormControl':'on'}
     r = ode45(dydt,tspan,y0)
     plt.plot(r.t,r.y[0])
     plt.plot(r.t,r.y[1])
@@ -62,7 +63,6 @@ def ballode():
         t=np.append(t,r.t)
         y=np.append(y,r.y[0])
         tstart=r.t[n-1]
-        
         
     print(len(t))
     plt.plot(t,y)
@@ -148,11 +148,13 @@ def orbit():
         return dydt
 
     def events(t,y):
-        #print(t,y)
+        
         dDSQdt=2*((y[0]-1.2)*(y[2])+(y[1])*(y[3]))
-        value = [dDSQdt, dDSQdt]
-        isterminal = [1,  0]
-        direction  = [1, -1]
+        print(dDSQdt)
+        value = [dDSQdt, dDSQdt, 0,0]
+        #value=[1,3]
+        isterminal = [1,  0,0,0]
+        direction  = [1, -1,0,0]
         
         return value, isterminal, direction
     
@@ -164,13 +166,29 @@ def orbit():
     plt.plot(res.y[0],res.y[1])
     
 
+def simple_choosen_points():
+    
+    fig = plt.gcf()
+    fig.set_size_inches(8, 6)
+    def dydt(t,y):
+        return [y[0]*np.cos(t),y[1]*np.cos(t),y[2]*np.cos(t)]
+    
+    tspan = np.linspace(0,10,num=101)
+    y0 = [1,2,3]
+    #options={'NormControl':'on'}
+    r = ode45(dydt,tspan,y0)
+    plt.plot(r.t,r.y[0])
+    plt.plot(r.t,r.y[1])
+    plt.plot(r.t,r.y[2])
+    
 def main():
+    simple_choosen_points()
     #orbit()
     #ballode()
-    simple1()
-    odemass2()
-    nonnegative()
-    simple1()
+    #simple1()
+    #odemass2()
+    #nonnegative()
+    #simple1()
     #ballode()
 #    fig = plt.gcf()
 #    fig.set_size_inches(8, 6)

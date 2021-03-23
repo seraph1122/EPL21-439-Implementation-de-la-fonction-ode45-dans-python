@@ -1,5 +1,5 @@
 import numpy as np
-from OdeResult import OdeResult
+from odeResult import odeResult
 from ntrp45 import ntrp45
 from odeargument import odearguments
 from odeget import odeget
@@ -16,7 +16,6 @@ import math
 def ode45(odefun,tspan,y0,options={},varargin=[]):
     
     solver_name='ode45'
-
 
     nsteps=0
     nfailed = 0
@@ -35,10 +34,10 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
         outputAt = 'SolverSteps'
     else:
         outputAt = 'RefinedSteps'
-        s=np.array(range(1,refine))/refine #Temp
+        s=np.array(range(1,refine))/refine
     
     
-    printstats = odeget(options,'Stats','off')
+    printstats = (odeget(options,'Stats','off') == 'on')
     
     
     haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(odeFcn,t0,y0,options,varargin)
@@ -50,6 +49,7 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
         f0 = feval(odeFcn,t0,y0,odeArgs)
         nfevals = nfevals + 1;
     
+     
         
     idxNonNegative = odeget(options,'NonNegative',[])
     nonNegative = False
@@ -81,6 +81,7 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
     
     
     #Initialize method parameters
+    stop=0
     power = 1/5
     A = np.array([1./5., 3./10., 4./5., 8./9., 1., 1.],dtype='float64')
     B = np.array([[1./5.,         3./40.,    44./45.,   19372./6561.,      9017./3168.,       35./384.    ],
@@ -103,7 +104,6 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
             rh=(np.linalg.norm(f0)/ max(normy, threshold))/ (0.8 * math.pow(rtol,power))
         else:
             rh=np.linalg.norm(f0 / np.maximum(np.abs(y),np.repeat(threshold,len(y))),np.inf) / (0.8 * math.pow(rtol,power))
-        print(normy, threshold, rh)
         if (absh * rh) > 1:
             absh =1/rh
         absh = max(absh,hmin)
@@ -112,12 +112,11 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
     
     f[:,0]=f0
     
-    
     ynew=np.zeros(neq,dtype='float64')
     
     done=False
     while not done:
-        hmin = 16*np.finfo(float(t)).eps
+        hmin = 16*np.spacing(float(t))
         absh = min(hmax, max(hmin, absh))
         h = tdir * absh
                 
@@ -131,7 +130,6 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
         while True:
             hA = h * A
             hB = h * B
-            #print(varargin)
             f[:,1]=feval(odeFcn,t+hA[0],y+np.matmul(f,hB[:,0]),odeArgs)
             f[:,2]=feval(odeFcn,t+hA[1],y+np.matmul(f,hB[:,1]),odeArgs)
             f[:,3]=feval(odeFcn,t+hA[2],y+np.matmul(f,hB[:,2]),odeArgs)
@@ -150,27 +148,34 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
             ynew=y+np.matmul(f,hB[:,5])
             f[:,6]=feval(odeFcn,tnew,ynew,odeArgs)
             nfevals=nfevals+6
-            
-#            print(h)
-            #print(f)
+
             
             NNrejectStep = False
             if normcontrol:
-                ''' 280 - 289
-                TODO : Estimate Error
-                '''
-                err=0
+                normynew = np.linalg.norm(ynew)
+                errwt = max(max(normy,normynew),threshold)
+                err = absh * np.linalg.norm(np.matmul(f,E)[:,0])/errwt
+                if nonNegative and err <= rtol and any([True for i in idxNonNegative if ynew[i] < 0]):
+                    errNN = np.linalg.norm([max(0, -1*ynew[i]) for i in idxNonNegative]) / errwt
+                    if errNN > rtol:
+                        err = errNN
+                        NNrejectedStep = True
             else:
                 denom=np.maximum(np.maximum(np.abs(y),np.abs(ynew)),threshold)
                 err=absh*np.linalg.norm(np.divide(np.matmul(f,E)[:,0],denom),np.inf)
-                ''' 292 - 298
-                TODO : Non-negative
-                '''
+                if nonNegative and err <= rtol and any([True for i in idxNonNegative if ynew[i] < 0]):
+                    errNN = np.linalg.norm(np.divide([max(0, -1*ynew[i]) for i in idxNonNegative],thresholdNonNegative), np.inf)
+                    if errNN > rtol:
+                        err = errNN
+                        NNrejectedStep =True
+
+
 
             if err > rtol:
                 nfailed = nfailed + 1
                 if absh <= hmin:
-                    return OdeResult(solver_name='ode45',odefun=odeFcn,t=tout[0,0:nout],y=yout[:,0:nout],nsteps=nsteps)
+                    raise Warning("ode45: ode45: IntegrationTolNotMet "+str(t)+" "+str(hmin))
+                    return odeResult(solver_name='ode45',odefun=odeFcn,t=tout[0,0:nout],y=yout[:,0:nout],nsteps=nsteps)
                 
                 if nofailed:
                     nofailed = False
@@ -184,10 +189,14 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
                 done = False
             else:
                 NNreset_f7 = False
+                if nonNegative and any([True for i in idxNonNegative if ynew[i]<0]):
+                    for j in idxNonNegative:
+                        ynew[j] = max(ynew[j],0)
+                        
+                    if normcontrol:
+                        normynew = np.linalg(ynew)
+                    NNreset_f7=True
                 
-                ''' 337-343
-                TODO : Non-negative
-                '''
                 break
             
             
@@ -195,17 +204,23 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
         nsteps+=1
         
         if haveEventFcn:
-            
-            te,ye,ie,valt,stop=odezero([],eventFcn,eventArgs,valt,t,np.transpose(np.array([y])),tnew,ynew,t0,h,f,idxNonNegative)
-            #print(ye,stop)
+            te,ye,ie,valt,stop=odezero([],eventFcn,eventArgs,valt,t,np.transpose(np.array([y])),tnew,np.transpose(np.array([ynew])),t0,h,f,idxNonNegative)
             if len(te)!=0:
-                if True: #Temp
-                    teout=np.append(teout,te)
-                    if len(yeout)==0:
-                        yeout=ye
-                    else:
-                        yeout=np.append(yeout,ye,axis=0)
-                    ieout=np.append(ieout,ie) #ieout is 2d
+                if len(teout)==0:
+                    teout=np.copy(te)
+                else:
+                    np.append(teout,te)
+                    
+                if len(yeout)==0:
+                    yeout=np.copy(ye)
+                else:
+                    np.append(yeout,ye,axis=1)
+                
+                if len(ieout)==0:
+                    ieout=np.copy(ie)
+                else:
+                    np.append(ieout,ie,axis=1)
+                    
                 if stop:
                     taux = t + (te[-1] - t)*A
                     discard,f[:,1:7]=ntrp45(taux,t,np.transpose(np.array([y])),h,f,idxNonNegative)
@@ -215,31 +230,48 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
                     done = True
                     
         
-        ''' 375 - 385
-        TODO : Failed step
-        '''
         
+        if outputAt == "SolverSteps":
+            nout_new=1
+            tout_new=tnew
+            yout_new=ynew
+        elif outputAt == "RefinedSteps":    
+            tref=t+(tnew-t)*s
+            nout_new=refine
+            tout_new=tref.copy()
+            tout_new=np.append(tout_new,tnew)
+            yout_new,discard=ntrp45(tref,t,np.transpose(np.array([y])),h,f,idxNonNegative)
+            yout_new=np.append(yout_new,np.transpose(np.array([ynew])),axis=1)
+        elif outputAt == "RequestedPoints":
+            nout_new=0
+            tout_new=np.array([])
+            yout_new=np.array([])
+            while nex <= ntspan:
+                if tdir * (tnew - tspan[nex-1]) < 0:
+                    if haveEventFcn and stop:
+                        nout_new=nout_new+1
+                        tout_new=np.appaned(tout_new,tnew)
+                        print(yout_new)
+                        if len(yout_new)==0:
+                            yout_new=np.transpose(np.array([ynew]))
+                        else:
+                            np.append(yout_new,np.transpose(np.array([ynew])),axis=1)
+                    break
+                
+                nout_new = nout_new + 1
+                tout_new = np.append(tout_new, tspan[nex-1])
+                
+                if tspan[nex-1] == tnew:
+                    yout_temp = np.transpose(np.array([ynew]))    
+                else:
+                    yout_temp,discard = ntrp45(tspan[nex-1],t,y,h,f,idxNonNegative)
+                
+                if len(yout_new)==0:
+                    yout_new=yout_temp
+                else:
+                    yout_new=np.append(yout_new,yout_temp,axis=1)
+                nex = nex + 1
         
-        ''' 389 - 392
-        TODO : Solver Steps
-        '''
-        
-        #Refinement
-        tref=t+(tnew-t)*s
-        nout_new=refine
-        tout_new=tref.copy()
-        tout_new=np.append(tout_new,tnew)
-        #print(y)
-        #y=np.transpose(np.array([y]))
-        #print(y)
-        yout_new,discard=ntrp45(tref,t,np.transpose(np.array([y])),h,f,idxNonNegative) #Fix y orientation
-        yout_new=np.transpose(yout_new)
-        yout_new=np.append(yout_new,np.array([ynew]),axis=0)
-        yout_new=np.transpose(yout_new)
-        
-        ''' 398 - 420
-        TODO : Requested Points
-        '''
         
         if nout_new > 0:
             oldnout=nout
@@ -253,9 +285,6 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
                 tout[0,i] = tout_new[i-oldnout]
                 yout[:,i] = yout_new[:,i-oldnout]
             
-                ''' 434 - 439
-                TODO : haveOutputFcn
-                '''
         
         if done:
             break
@@ -271,10 +300,14 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
             
         t=tnew
         y=ynew.copy()
+        
+        if NNreset_f7:
+            f[:,6]=feval(odeFcn,tnew,ynew,odeArgs)
+            nfevals = nfevals+1
         f[:,0]=f[:,6]
         
         nsteps+=1
-    return OdeResult(solver_name='ode45',odefun=odeFcn,t=tout[0,0:nout],y=yout[:,0:nout],nsteps=nsteps)
+    return odeResult(solver_name='ode45',odefun=odeFcn,t=tout[0,0:nout],y=yout[:,0:nout],nsteps=nsteps)
     
 
     

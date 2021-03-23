@@ -72,6 +72,7 @@ def odeoptions(options, t, y, varargin):
                 raise TypeError('odeoptions: Events: must be a function')
             else:
                 vnew,isterminal,direction = value(t,y,*varargin)
+                print(vnew,isterminal,direction)
                 if not isinstance(vnew,list) or not isinstance(isterminal,list) or not isinstance(direction,list):
                     raise ValueError('odeoptions: Event: must output vnew,isterminal,direction of type list')
                 else:

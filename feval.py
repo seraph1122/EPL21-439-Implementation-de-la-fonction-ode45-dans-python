@@ -2,42 +2,19 @@ import numpy as np
 import collections
 import sys
 
-def feval(fun,t,y,extra,verify=True):
+def feval(fun,t,y,extra):
     
-    if not verify:
-        mainArgs = np.array([t, y])
-        extraArgs = np.array(extra)
-        allArgs = np.append(mainArgs, extraArgs)
-        return fun(*allArgs)
-        
-    if type(y)==type(None):
-        mainArgs = np.array([t])
-    else:
-        mainArgs = np.array([t, y])
-    
-    
-    
-    
-    extraArgs = np.array(extra)
-    allArgs = np.append(mainArgs, extraArgs)
-    
-    if not (type(y)==type([]) or type(y)==type(np.array([]))):
-        result = fun(*allArgs)
+    if isinstance(y,type(None)):
+        try:
+            result = fun(t,*extra)
+        except:
+            raise Exception("ode45: feval: FunctionError")
+        return 
     else:
         try:
-            result = fun(*allArgs)
-            if not ( type(result)==type([]) or type(result)==type(np.array([]))):
-                result = np.zeros(len(y))
-                for i in range(len(y)):
-                    allArgs[1] = y[i]
-                    result[i] = fun(*allArgs)
-        except TypeError:
-            result = np.zeros(len(y))
-            for i in range(len(y)):
-                allArgs[1] = y[i]
-                result[i] = fun(*allArgs)
+            result = fun(t,y,*extra)
         except:
-             raise Exception("{}:feval:OtherException".format(sys.exc_info()[0]))
+            raise Exception("ode45: feval: FunctionError")
     
-    return np.array(result)
-      
+
+    return result

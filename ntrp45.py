@@ -12,17 +12,19 @@ def ntrp45(tinterp,t,y,h,f,idxNonNegative):
     [0,        -11/7,        11/3,        -55/28,   ],
     [0,         3/2,         -4,            5/2,    ]])
 
-    if type(tinterp)!=type(np.array([])):
+    if not isinstance(tinterp,np.ndarray):
         tinterp=np.array([tinterp])
     s = (tinterp - t)/h
     
-#    print("ntrp")
-#    print(y)
+    #print("ntrp")
+    #print(tinterp,s,t,y,h,f)
     
     diff=np.matmul(np.matmul(f,h*BI),np.cumprod(np.tile(s,(4,1)),axis=0)) 
-#    print(diff)
-#    print(np.tile(y,(1,len(tinterp))))
-    yinterp=np.tile(y,(1,len(tinterp)))+diff
+    if len(tinterp) == 1:
+        tile = np.transpose(np.array([y]))
+    else:
+        tile=np.tile(y,(1,len(tinterp)))
+    yinterp=tile+diff
     
     ncumprod=np.array([np.ones(len(s)),2*s,1.5*s,3*s])
     ypinterp=np.matmul(np.matmul(f,BI),ncumprod)

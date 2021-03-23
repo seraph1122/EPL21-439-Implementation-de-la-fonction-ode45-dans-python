@@ -18,9 +18,9 @@ def odeevents(ode,t0,y0,options,extras):
     
     haveeventfun = True
     eventArgs = extras
-    mainArgs = np.array([t0, y0])
-    extraArgs = np.array(eventArgs)
-    allArgs = np.append(mainArgs, extraArgs)
-    [eventValue,isterminal,direction] = eventFcn(*allArgs)#Change to feval
+#    mainArgs = np.array([t0, y0])
+#    extraArgs = np.array(eventArgs)
+#    allArgs = np.append(mainArgs, extraArgs)
+    eventValue,isterminal,direction = feval(eventFcn,t0,y0,eventArgs)
     
     return haveeventfun,eventFcn,eventArgs,eventValue,teout,yeout,ieout

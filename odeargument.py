@@ -63,7 +63,7 @@ def odearguments(solver, ode, tspan, y0, options, extras):
     
     classT0 = (np.array(t0)).dtype
     classY0 = (np.array(y0)).dtype
-    classF0 = f0.dtype
+    classF0 = (np.array(f0)).dtype
     dataType=max(classT0,classY0,classF0)
 
     
