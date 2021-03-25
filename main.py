@@ -11,15 +11,16 @@ def simple1():
     fig = plt.gcf()
     fig.set_size_inches(8, 6)
     def dydt(t,y):
-        return [y[0]*np.cos(t),y[1]*np.cos(t)]
+        return [np.cos(t)]
     
     tspan = [0,10]
-    y0 = [1,2]
-    options={'NormControl':'on'}
+    y0 = [1]
+    #options={'NormControl':'on'}
     r = ode45(dydt,tspan,y0)
-    plt.plot(r.t,r.y[0])
-    plt.plot(r.t,r.y[1])
-    plt.plot(r.t,r.y[2])
+    print(r.ieout)
+    plt.plot(r.tout,r.yout[0])
+    #plt.plot(r.tout,r.yout[1])
+    #plt.plot(r.tout,r.yout[2])
     
 def simple2():
     fig = plt.gcf()
@@ -58,13 +59,13 @@ def ballode():
     for i in range(10):
         tspan=[tstart,30]
         r=ode45(dydt,tspan,y0,options)
-        n=len(r.t)
+        n=len(r.tout)
         y0[1]=0.9*y0[1]
-        t=np.append(t,r.t)
-        y=np.append(y,r.y[0])
-        tstart=r.t[n-1]
-        
-    print(len(t))
+        t=np.append(t,r.tout)
+        y=np.append(y,r.yout[0])
+        tstart=r.tout[n-1]
+    
+    print(r.yeout)
     plt.plot(t,y)
     #plt.scatter(np.arange(len(t)-1),np.diff(t))
 
@@ -127,45 +128,6 @@ def odemass2():
     plt.plot(r.t,r.y[1])
 
 
-def orbit():
-    mu = 1 / 82.45
-    mustar = 1 - mu
-    y0 = [1.2, 0, 0, -1.04935750983031990726]
-    tspan = [0, 7]
-    
-    def f(t,y):
-        print(y)
-        mu = 1.0 / 82.45
-        mustar = 1 - mu
-        r13 = math.pow(((y[0] + mu)*(y[0] + mu) + y[1]*y[1]), 1.5)
-        r23 = math.pow(((y[0] - mustar)*(y[0] - mustar) +  y[1]*y[1]), 1.5)
-        x1=y[2]
-        x2=y[3]
-        x3=2*y[3] + y[0] - mustar*((y[0]+mu)/r13) - mu*((y[0]-mustar)/r23)
-        x4=-2*y[2] + y[1] - mustar*(y[1]/r13) - mu*(y[1]/r23)
-        dydt = [ x1, x2, x3, x4]
-        print(dydt)
-        return dydt
-
-    def events(t,y):
-        
-        dDSQdt=2*((y[0]-1.2)*(y[2])+(y[1])*(y[3]))
-        print(dDSQdt)
-        value = [dDSQdt, dDSQdt, 0,0]
-        #value=[1,3]
-        isterminal = [1,  0,0,0]
-        direction  = [1, -1,0,0]
-        
-        return value, isterminal, direction
-    
-    options = {'Events':events}
-    
-    
-    res=ode45(f,tspan,y0,options)
-
-    plt.plot(res.y[0],res.y[1])
-    
-
 def simple_choosen_points():
     
     fig = plt.gcf()
@@ -182,14 +144,14 @@ def simple_choosen_points():
     plt.plot(r.t,r.y[2])
     
 def main():
-    simple_choosen_points()
+    #simple_choosen_points()
     #orbit()
     #ballode()
-    #simple1()
+    simple1()
     #odemass2()
     #nonnegative()
     #simple1()
-    #ballode()
+    ballode()
 #    fig = plt.gcf()
 #    fig.set_size_inches(8, 6)
 #    

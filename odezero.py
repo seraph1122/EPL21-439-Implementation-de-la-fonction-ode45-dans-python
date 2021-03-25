@@ -5,10 +5,6 @@ from feval import feval
 
 def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     
-    #print(v,t,y,tnew,ynew,t0,h,f,idxNonNegative)
-    #print("Y")
-    #print(y)
-    #print(t)
     tol = 128*max(np.spacing(float(t)),np.spacing(float(tnew)))
     tol = min(tol, abs(tnew - t))
     
@@ -19,22 +15,20 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     stop = 0
     rmin=np.finfo(float).tiny
     
-    
     tL = t
     yL = np.array(y)
     vL = v
-    #print(feval(eventfun,tnew,ynew,eventargs))
+    
     [vnew,isterminal,direction] = feval(eventfun,tnew,ynew,eventargs)
-    #print(vnew,isterminal,direction)
-    #print(vnew,isterminal,direction)
+    
     if len(direction)==0:
-      direction = np.zeros(len(vnew))
+        direction = np.zeros(len(vnew))
+    
     tR = tnew
     yR = np.array(ynew)
     vR = vnew
     ttry = tR
     
-    #print(tol,tout,yout,iout,tdir,stop,rmin,tL,yL,vL,tR,yR,vR,ttry)
     while True:
         lastmoved = 0
         while True:
@@ -56,40 +50,33 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                 for j in indzc:
                     if vL[j]==0:
                         if (tdir*ttry > tdir*tR) and (vtry[j] != vR[j]):
-                            maybe = 1.0 - vR[j] * (ttry-tR) / ((vtry[j]-vR[j]) * delta)
+                            maybe = 1.0 - float(vR[j] * (ttry-tR) / ((vtry[j]-vR[j]) * delta))
                             if (maybe < 0) or (maybe > 1):
                                 maybe = 0.5
                         else:
                             maybe = 0.5
                     elif vR[j] == 0.0:
                         if (tdir*ttry < tdir*tL) and (vtry[j] != vL[j]):
-                            maybe = vL[j] * (tL-ttry) / ((vtry[j]-vL[j]) * delta)
+                            maybe = float(vL[j] * (tL-ttry) / ((vtry[j]-vL[j]) * delta))
                             if (maybe < 0) or (maybe > 1):
                                 maybe = 0.5
                         else:
                             maybe = 0.5
                     else:
-                        maybe = -vL[j] / (vR[j] - vL[j])
+                        maybe = float(-vL[j] / (vR[j] - vL[j]))
                     if maybe < change:
                         change = maybe
                 change = change * abs(delta)
             
-    
                 change = max(0.5*tol, min(change, abs(delta) - 0.5*tol))
-            
                 ttry = tL + tdir * change
                 
             
             ytry, discard = ntrp45(ttry,t,y,h,f,idxNonNegative)
             ytry = ytry[0]
-            #print(ttry,ytry)
             [vtry, discrad1, discard2] = feval(eventfun,ttry,ytry,eventargs)
-#            print("zero")
-#            print(vtry,vL)
             indzc = [i for i in range(len(direction)) if (direction[i]*(vtry[i]-vL[i])>=0) and (vtry[i]*vL[i] < 0 or vtry[i]*vL[i] == 0)]
             
-#            print(type(vR))
-#            print(type(vL))
             if len(indzc)!=0:
                 tswap = tR
                 tR = ttry
@@ -101,11 +88,10 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                 vR = vtry
                 vtry = vswap
                 if lastmoved == 2:
-                    maybe = [0.5*x for x in vL]
-                    #maybe = 0.5 * vL
-                    for i in range(len(maybe)):
-                        if abs(maybe[i]) >= rmin:
-                            vL[i] = maybe[i]
+                    maybe1 = [0.5*x for x in vL]
+                    for i in range(len(maybe1)):
+                        if abs(maybe1[i]) >= rmin:
+                            vL[i] = maybe1[i]
                 lastmoved = 2
             else:
                 tswap = tL
@@ -119,18 +105,16 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                 vtry = vswap
                 
                 if lastmoved == 1:
-                    #print(vR)
-                    maybe = [0.5*x for x in vR]
-                    #maybe = 0.5 * vR
-                    for i in range(len(maybe)):
-                        if abs(maybe[i]) >= rmin:
-                            vR[i] = maybe[i]
+                    maybe2 = [0.5*x for x in vR]
+                    for i in range(len(maybe2)):
+                        if abs(maybe2[i]) >= rmin:
+                            vR[i] = maybe2[i]
                     
                 lastmoved = 1
         
         ntout=np.array([tR for index in range(len(indzc))])
         nyout=np.tile(np.transpose([yR]),len(indzc))[0]
-        niout=np.array([[indzc[index]] for index in range(len(indzc))]) #indzc is vertical fix
+        niout=np.array([indzc[index] for index in range(len(indzc))]) #indzc is vertical fix
         if len(tout)==0:
             tout=ntout
             yout=nyout

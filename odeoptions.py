@@ -119,12 +119,6 @@ def odeoptions(options, t, y, varargin):
         elif key == 'MStateDependence':
             if value != 'none' and value != 'weak':
                 raise ValueError('odeoptions: MStateDependence: must either be \'none\' or \'weak\'')
-        
-        elif key == 'OutputFcn':
-            pass #TODO
-        
-        elif key == 'OutputSel':
-            pass #TODO
                 
             
         else:

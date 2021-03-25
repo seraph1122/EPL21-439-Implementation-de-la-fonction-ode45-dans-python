@@ -7,5 +7,4 @@ def odeget(options,name,default):
     if name in options:
         opt=options.get(name)
         
-    
     return opt
