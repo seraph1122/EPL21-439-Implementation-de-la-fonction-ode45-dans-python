@@ -1,5 +1,131 @@
 import numpy as np
 
+
+def get_event_fun(val):
+    return val
+
+def get_mass_fun(val):
+    return val
+
+class Inputs:
+    def __init__(self):
+        self.fun=None
+        self.tspan=None
+        self.y0=None
+        self.varargin=[]
+        self.reltol=None
+        self.norm=None
+        self.abstol=None
+        self.refine=None
+        self.stats=None
+        self.nonnegative=None
+        self.events=None
+        self.maxstep=None
+        self.initialstep=None
+        self.mass=None
+        self.massstate=None
+
+    def __str__(self):
+        return "Fun : "+str(self.fun)+"\nTspan : "+str(self.tspan)+"\nY0 : "+str(self.y0)+ \
+        "\nVarargin : "+str(self.varargin)+"\nRelTol : "+str(self.reltol)+"\nAbsTol : "+str(self.abstol)+ \
+        "\nNormControl : "+str(self.norm)+"\nRefine : "+str(self.refine)+"\nStats : "+str(self.stats)+ \
+        "\nNonNegative : "+str(self.nonnegative)+"\nEvents : "+str(self.events)+"\nMaxStep : "+str(self.maxstep)+ \
+        "\nInitialStep : "+str(self.initialstep)+"\nMass : "+str(self.mass)+"\nMStateDependence : "+str(self.massstate)+ "\n\n"
+
+    def set_fun(self, val):
+        self.fun=val
+        
+    def set_tspan(self, val):
+        x = [0] * len(val)
+        for i in range(len(val)):
+            x[i]=float(val[i])
+        self.tspan=x
+    
+    def set_y0(self, val):
+        x = [0] * len(val)
+        for i in range(len(val)):
+            x[i]=float(val[i])
+        self.y0=x
+    
+    def set_varargin(self, val):
+        x = [0] * len(val)
+        for i in range(len(val)):
+            x[i]=float(val[i])
+        self.varargin=x
+    
+    def set_reltol(self, val):
+        self.reltol=float(val)
+        
+    def set_abstol(self, val):
+        self.abstol=float(val)
+        
+    def set_norm(self, val):
+        self.norm=val
+        
+    def set_refine(self, val):
+        self.refine=int(val)
+        
+    def set_stats(self, val):
+        self.stats=val
+        
+    def set_nonnegative(self, val):
+        x = [0] * len(val)
+        for i in range(len(val)):
+            x[i]=float(val[i])
+        self.nonnegative=x
+        
+    def set_events(self, val):
+        self.events=get_event_fun(val)
+        
+    def set_maxstep(self, val):
+        self.maxstep=float(val)
+        
+    def set_initialstep(self, val):
+        self.initialstep=float(val)
+    
+    def set_mass_fun(self, val):
+        self.mass=get_mass_fun(val)
+    
+    def set_mass_mat(self, val):
+        l = int(np.sqrt(len(val)))
+        x = np.zeros((l,l))
+        for i in range(l):
+            for j in range(l):
+                x[i,j]=float(val[i*l + j])
+        self.mass=x
+    
+    def set_massstate(self, val):
+        self.massstate=val
+    
+    
+    def get_options(self):
+        opt ={}
+        
+        if self.reltol != None:
+            opt["RelTol"] = self.reltol
+        if self.abstol != None:
+            opt["AbsTol"] = self.abstol
+        if self.norm != None:
+            opt["NormControl"] = self.norm
+        if self.refine != None:
+            opt["Refine"] = self.refine
+        if self.stats != None:
+            opt["Stats"] = self.stats
+        if self.nonnegative != None:
+            opt["NonNegative"] = self.nonnegative
+        if self.events != None:
+            opt["Events"] = self.events
+        if self.maxstep != None:
+            opt["MaxStep"] = self.maxstep
+        if self.initialstep != None:
+            opt["InitialStep"] = self.initialstep
+        if self.mass != None:
+            opt["Mass"] = self.mass
+        if self.massstate != None:
+            opt["MStateDependence"] = self.massstate
+        
+        return opt
+
 class Results:
     def __init__(self):
         self.tout=np.array([])
@@ -79,43 +205,71 @@ class Results:
 def read_tests(filename):
     f=open(filename,"r")
     results = []
+    inputs = []
     for line in f:
-        statsvec=[0,0,0]        
+        statsvec=[0,0,0]
+        print(line)
         result = Results()
-        #inputs = Inputs()
+        inp = Inputs()
         sp = line.split(" ")
         for word in sp:
             key, values =word.split(":")
             if key == "Function":
-                pass
+                inp.set_fun(values)
             elif key == "Tspan":
-                pass
+                val = values.split("#")
+                val.pop()
+                inp.set_tspan(val)         
             elif key == "Y0":
-                pass
+                val = values.split("#")
+                val.pop()
+                inp.set_y0(val) 
             elif key == "Varargin":
-                pass
+                val = values.split("#")
+                val.pop()
+                if len(val)>1:
+                    inp.set_varargin(val)
             elif key == "RelTol":
-                pass
+                print(values)
+                if values != '': 
+                    inp.set_reltol(values)
             elif key == "AbsTol":
-                pass
+                if values != '': 
+                    inp.set_abstol(values)
             elif key == "NormControl":
-                pass
+                if values != '': 
+                    inp.set_norm(values)
             elif key == "Refine":
-                pass
+                if values != '': 
+                    inp.set_refine(values)
             elif key == "Stats":
-                pass
+                if values != '': 
+                    inp.set_stats(values)
             elif key == "NonNegative":
-                pass
+                val = values.split("#")
+                val.pop()
+                if len(val)>1:
+                    inp.set_nonnegative(val)
             elif key == "Events":
-                pass
+                if values != '': 
+                    inp.set_events(values)
             elif key == "MaxStep":
-                pass
+                if values != '': 
+                    inp.set_maxstep(values)
             elif key == "InitialStep":
-                pass
+                if values != '': 
+                    inp.set_initialstep(values)
             elif key == "Mass":
-                pass
+                val = values.split("#")
+                if len(val) == 1:
+                    inp.set_mass_fun(values)
+                else:
+                    val.pop()
+                    if len(val)>1:
+                        inp.set_mass_mat(val)
             elif key == "MStateDependence":
-                pass
+                if values != '': 
+                    inp.set_massstate(values)
             elif key == "Tout":
                 val = values.split("#")
                 val.pop()
@@ -153,6 +307,8 @@ def read_tests(filename):
             
         result.set_statvec(statsvec)
         results.append(result)
+        inputs.append(inp)
+        print(inp)
         print(result)
             
         
