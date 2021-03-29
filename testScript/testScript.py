@@ -1,5 +1,28 @@
 import numpy as np
+import os
+import sys
 
+#Code taken from https://codeolives.com/2020/01/10/python-reference-module-in-parent-directory/
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
+
+from ode import ode45
+import matplotlib.pyplot as plt
+
+def solve_ode(inputs):
+    sol=ode45(inputs.fun,inputs.tspan,inputs.y0,inputs.get_options(),inputs.varargin)
+    plt.plot(sol.tout,sol.yout[0])
+    plt.plot(sol.tout,sol.yout[1])
+    
+
+
+
+def get_fun(val):
+    if val == 'cosbasic':
+        def f(t,y):
+            return [np.cos(t),2*np.cos(t)]
+    return f
 
 def get_event_fun(val):
     return val
@@ -33,7 +56,8 @@ class Inputs:
         "\nInitialStep : "+str(self.initialstep)+"\nMass : "+str(self.mass)+"\nMStateDependence : "+str(self.massstate)+ "\n\n"
 
     def set_fun(self, val):
-        self.fun=val
+        
+        self.fun=get_fun(val)
         
     def set_tspan(self, val):
         x = [0] * len(val)
@@ -208,7 +232,6 @@ def read_tests(filename):
     inputs = []
     for line in f:
         statsvec=[0,0,0]
-        print(line)
         result = Results()
         inp = Inputs()
         sp = line.split(" ")
@@ -308,10 +331,11 @@ def read_tests(filename):
         result.set_statvec(statsvec)
         results.append(result)
         inputs.append(inp)
-        print(inp)
-        print(result)
+    return results,inputs
             
         
-        
-read_tests("test.txt")
+results,inputs=read_tests("test.txt")
+for i in range(len(inputs)):
+    solve_ode(inputs[i])
+
     
