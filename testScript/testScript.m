@@ -1,67 +1,151 @@
 
-% te=[];
-% ye=[];
-% ie=[];
-% options = odeset('Events',@events,'NormControl','on','Refine',4,'AbsTol',1e-5,'Stats','on');
-% [t,y]=ode45(@f,tspan,y0,options)
-% sol=ode45(@f,tspan,y0,options)
-% 
-% 
-% 
-% plot(t,y(:,1))
-% 
-% fileID = fopen('test.txt','w');
-% writetext(fileID, sol,tspan,y0,t,y,te,ye,ie)
-% writetext(fileID,sol,tspan,y0,t,y,te,ye,ie)
-% 
-% function dydt = f(t,y,k)
-% dydt = [y(2); -9.8];
-% end
-% 
-% function [value,isterminal,direction] = events(t,y,k)
-% % Locate the time when height passes through zero in a decreasing direction
-% % and stop integration.
-% value = [y(1),y(1)];     % detect height = 0
-% isterminal = [1,1];   % stop the integration
-% direction = [-1,-1];   % negative direction
-% end
+function main()
+    fun = @cosbasic;
+    size = 2;
+    tstart=-100;
+    tend=100;
+    y0start=1;
+    y0end=100;
+    events=@eventsbasic;
+    mass=[];
+    
+    choices={'tol','refine','nonnegative','step'};
+    fileID = fopen('test.txt','w');
+    execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
+    
+    
+%     choices={};
+%     fileID = fopen('basictest.txt','w');
+%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
+%     
+%     choices={'tol'};
+%     fileID = fopen('toltest.txt','w');
+%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
+%     
+%     choices={'refine'};
+%     fileID = fopen('refinetest.txt','w');
+%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
+%     
+%     choices={'nonnegative'};
+%     fileID = fopen('nntest.txt','w');
+%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
+%     
+%     choices={'step'};
+%     fileID = fopen('basic.txt','w');
+%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
+%     
+%     choices={'events'};
+%     fileID = fopen('eventstest.txt','w');
+%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
+%     
+%     choices={'massmatrix'};
+%     fileID = fopen('massmatrixtest.txt','w');
+%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
+%     
+%     choices={};
+%     fileID = fopen('alltest.txt','w');
+%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
+    
+end
+
+function execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,textfile)
+    succ = false;
+    while ~succ
+        [y0,tspan]=randInput(size,tstart,tend,y0start,y0end);
+        options = odeset();
+        te=[];
+        ye=[];
+        ie=[];
+        if any(strcmp(choices,'tol'))
+            options = randTol(options,y0);
+        end
+        if any(strcmp(choices,'refine'))
+            options = randRefine(options);
+        end
+        if any(strcmp(choices,'nonnegative'))
+            options = randNN(options,y0);
+        end
+        if any(strcmp(choices,'step'))
+            options = randStep(options);
+        end
+        if any(strcmp(choices,'events'))
+            options = odeset(options,'Events',events);
+        end
+        if any(strcmp(choices,'massmatrix'))
+            options = randMatrix(options,y0);
+        end
+        if any(strcmp(choices,'massfunctime'))
+            options = odeset(options,'Events',mass,'MStateDependence','none');
+        end
+        if any(strcmp(choices,'massfuncstate'))
+            options = odeset(options,'Mass',mass,'MStateDependence','weak');
+        end
+        try
+            if any(strcmp(choices,'events'))
+                [t,y,te,ye,ie]=ode45(@cosbasic,tspan,y0,options);
+            else
+                [t,y]=ode45(@cosbasic,tspan,y0,options);
+            end
+            sol=ode45(@cosbasic,tspan,y0,options);
+            succ = true;
+        catch
+            warning('Test failed');
+        end
+    end
+    plot(t,y)
+    writetext(textfile,sol,tspan,y0,t,y,te,ye,ie);
+end
 
 
-[fun,y0,tspan,varargin]=randInput('cosbasic',-100,100,0.05)
-options=randTol(odeset(),y0);
-%options=odeset()
-[t,y]=ode45(@cosbasic,tspan,y0,options);
-sol=ode45(@cosbasic,tspan,y0,options);
-plot(t,y)
 
-fileID = fopen('test.txt','w');
-writetext(fileID, sol,tspan,y0,t,y,[],[],[])
+%%
+%
+%   Write your functions/mass functions here
+%
+%
 
 function dydt = cosbasic(t,y)
     dydt=[cos(t);2*cos(t)];
 end
 
-function [fun,y0,tspan,varargin] = randInput(functions,start,en,space)
+function [value,isterminal,direction] = eventsbasic(t,y)
+    value = [y(1),y(2)];
+    isterminal = [1,0];
+    direction = [1,-1];
+end
+
+%%
+
+
+
+%%
+function [y0,tspan] = randInput(size,start,en,y0start,y0end)
     bool = [0,1];
-    if strcmp(functions,'cosbasic')
-        fun=@cosbasic
-        y0exponent = [1e0,1e1,1e2];
-        y0=[rand * randsample(y0exponent,1); rand * randsample(y0exponent,1)];
-        varargin = []
-        if randsample(bool,1)
-            t0= start + (en-start) .* rand;
-            tend = t0 +(en-t0) .* rand;
-            tspan = [t0,tend];
-        elseif randsample(bool,1)
-            t0= start + (en-start) .* rand;
-            tend = t0 +(en-t0) .* rand;
-            tspan = [t0:space:tend];
-        else
-            t0= start + (en-start) .* rand;
-            tend = t0 +(en-t0) .* rand;
-            num = round((t0-tend)/space)
-            tspan=sort(rand(1,num))
-        end
+    y0exponent = zeros(1,floor(log10(y0end/y0start))+1);
+    y0exponent(1) = y0start;
+    for i = 2:length(y0exponent)
+        y0exponent(i) = y0exponent(i-1)*10;
+    end
+    y0=zeros(size,1);
+    for i=1:size
+        y0(i) = rand * randsample(y0exponent,1);
+    end
+    if randsample(bool,1)
+        t0= start + (en-start) .* rand;
+        tend = t0 +(en-t0) .* rand;
+        tspan = [t0,tend];
+    elseif randsample(bool,1)
+        t0= start + (en-start) .* rand;
+        tend = t0 +(en-t0) .* rand;
+        space = 1/ (50 + (1000-50) *rand);
+        tspan = [t0:space:tend];
+    else
+        t0= start + (en-start) .* rand;
+        tend = t0 +(en-t0) .* rand;
+        space = 1 / (50 + (1000-50) *rand);
+        num = round((tend-t0)/space);
+        tspan=sort(rand(1,num)*(tend-t0) + t0);
+        
     end
 end
 
@@ -85,7 +169,47 @@ function option = randTol(opt,y0)
     option=odeset(option,'RelTol',rand*randsample(relexponent,1));
 end
 
+function option = randRefine(opt)
+    option = odeset(opt,'Refine',floor(1 + 20 * rand));
+end
 
+function option = randNN(opt,y0)
+    bool = [0,1];
+    size = length(y0);
+    index = [];
+    for i = 1:size
+        if randsample(bool,1)
+            index = [index, i];
+        end
+    end
+    option = odeset(opt,'NonNegative',index);
+end
+
+function option = randStep(opt)
+    maxexponent = [1e-3,1e-2,1e-1,1,10];
+    initexponent = [1e-5,1e-4,1e-3,1e-2,1e-1,1];
+    option=odeset(opt,'MaxStep',rand*randsample(maxexponent,1));
+    option=odeset(option,'InitialStep',rand*randsample(initexponent,1));
+end
+
+
+function option = randMatrix(opt,y0)
+    massexponent = [,1e-1,1,1e1];
+    size = length(y0);
+    mat = zeros(size,size);
+    for i = 1:size
+        for j = 1:size
+            mat(i,j)=rand*randsample(massexponent,1);
+        end
+    end
+    disp(mat)
+    option = odeset(opt,'Mass',mat);
+end
+
+
+%%
+
+%%
 
 function writetext(fileID,sol,tspan,y0,t,y,te,ye,ie)
     
@@ -108,7 +232,7 @@ function writetext(fileID,sol,tspan,y0,t,y,te,ye,ie)
     fprintf(fileID,'%.15f',sol.extdata.options.RelTol);
     fprintf(fileID,' ');
     fprintf(fileID,'AbsTol:');
-    fprintf(fileID,'%.15f',sol.extdata.options.AbsTol);
+    fprintf(fileID,'%.15f#',sol.extdata.options.AbsTol);
     fprintf(fileID,' ');
     fprintf(fileID,'NormControl:');
     fprintf(fileID,'%s',sol.extdata.options.NormControl);

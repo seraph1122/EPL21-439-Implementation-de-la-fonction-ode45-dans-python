@@ -11,6 +11,7 @@ from ode import ode45
 import matplotlib.pyplot as plt
 
 def solve_ode(inputs):
+    print(inputs.get_options())
     sol=ode45(inputs.fun,inputs.tspan,inputs.y0,inputs.get_options(),inputs.varargin)
     plt.plot(sol.tout,sol.yout[0])
     plt.plot(sol.tout,sol.yout[1])
@@ -81,7 +82,13 @@ class Inputs:
         self.reltol=float(val)
         
     def set_abstol(self, val):
-        self.abstol=float(val)
+        if len(val)==1:
+            self.abstol=float(val[0])
+        else:
+            x = [0] * len(val)
+            for i in range(len(val)):
+                x[i]=float(val[i])
+            self.abstol=x
         
     def set_norm(self, val):
         self.norm=val
@@ -95,7 +102,7 @@ class Inputs:
     def set_nonnegative(self, val):
         x = [0] * len(val)
         for i in range(len(val)):
-            x[i]=float(val[i])
+            x[i]=int(val[i])-1
         self.nonnegative=x
         
     def set_events(self, val):
@@ -253,12 +260,13 @@ def read_tests(filename):
                 if len(val)>1:
                     inp.set_varargin(val)
             elif key == "RelTol":
-                print(values)
                 if values != '': 
                     inp.set_reltol(values)
             elif key == "AbsTol":
-                if values != '': 
-                    inp.set_abstol(values)
+                val = values.split("#")
+                val.pop() #TODO
+                if val[0] != '': 
+                    inp.set_abstol(val)
             elif key == "NormControl":
                 if values != '': 
                     inp.set_norm(values)
@@ -271,7 +279,7 @@ def read_tests(filename):
             elif key == "NonNegative":
                 val = values.split("#")
                 val.pop()
-                if len(val)>1:
+                if val[0] != '':
                     inp.set_nonnegative(val)
             elif key == "Events":
                 if values != '': 
