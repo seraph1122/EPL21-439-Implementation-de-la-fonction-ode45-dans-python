@@ -107,7 +107,7 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
             absh =1/rh
         absh = max(absh,hmin)
     else:
-        absh=min(absh,max(hmin,htry))
+        absh=min(hmax,max(hmin,htry))
     
     f[:,0]=f0
     
@@ -194,7 +194,7 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
                         ynew[j] = max(ynew[j],0)
                         
                     if normcontrol:
-                        normynew = np.linalg(ynew)
+                        normynew = np.linalg.norm(ynew)
                     NNreset_f7=True
                 
                 break

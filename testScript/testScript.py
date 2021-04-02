@@ -10,11 +10,14 @@ sys.path.append(parentdir)
 from ode import ode45
 import matplotlib.pyplot as plt
 
-def solve_ode(inputs):
+def solve_ode(inputs,result):
     print(inputs.get_options())
     sol=ode45(inputs.fun,inputs.tspan,inputs.y0,inputs.get_options(),inputs.varargin)
+    fig = plt.gcf()
+    fig.set_size_inches(8, 6)
     plt.plot(sol.tout,sol.yout[0])
     plt.plot(sol.tout,sol.yout[1])
+    print(result)
     
 
 
@@ -23,6 +26,9 @@ def get_fun(val):
     if val == 'cosbasic':
         def f(t,y):
             return [np.cos(t),2*np.cos(t)]
+    if val == 'trigbasic':
+        def f(t,y):
+            return [y[0]*np.cos(t),y[1]*np.sin(t)]
     return f
 
 def get_event_fun(val):
@@ -150,7 +156,7 @@ class Inputs:
             opt["MaxStep"] = self.maxstep
         if self.initialstep != None:
             opt["InitialStep"] = self.initialstep
-        if self.mass != None:
+        if not isinstance(self.mass,type(None)):
             opt["Mass"] = self.mass
         if self.massstate != None:
             opt["MStateDependence"] = self.massstate
@@ -174,6 +180,23 @@ class Results:
         "\nTout : "+str(self.tout)+"\nYout : "+str(self.yout)+"\nTeout : "+str(self.teout)+ \
         "\nYeout : "+str(self.yeout)+"\nIeout : "+str(self.ieout)+"\n\n"
     
+    def compare(self,tout,yout):
+        errt = 0
+        erry = 0
+        
+        t = self.tout
+        y = self.yout
+        
+        print(len(tout))
+        print(len(t))
+        print("Equal size : " + str(len(t)==len(tout)))
+        
+        for i in range(t):
+            if abs(tout[i]-t[i])>errt:
+                errt = abs(tout[i]-t[i])
+        
+        print("Error t : " + str(errt))
+    
     def equal(self, tout,yout,nsteps,nfailed,nfevals,teout,yeout,ieout, tol):
         neq = len(self.yout)
         length = len(self.tout)
@@ -191,7 +214,7 @@ class Results:
             if self.tout[i]-tout[i]>tol:
                 return False
             for j in range(neq):
-                if self.yout[j,i]-tout[j,i]>tol:
+                if self.yout[j,i]-yout[j,i]>tol:
                     return False
         
         return True
@@ -264,7 +287,7 @@ def read_tests(filename):
                     inp.set_reltol(values)
             elif key == "AbsTol":
                 val = values.split("#")
-                val.pop() #TODO
+                val.pop()
                 if val[0] != '': 
                     inp.set_abstol(val)
             elif key == "NormControl":
@@ -344,6 +367,6 @@ def read_tests(filename):
         
 results,inputs=read_tests("test.txt")
 for i in range(len(inputs)):
-    solve_ode(inputs[i])
+    solve_ode(inputs[i],results[i])
 
     

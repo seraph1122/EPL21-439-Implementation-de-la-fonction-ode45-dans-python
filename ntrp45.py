@@ -16,8 +16,6 @@ def ntrp45(tinterp,t,y,h,f,idxNonNegative):
         tinterp=np.array([tinterp])
     s = (tinterp - t)/h
     
-    #print("ntrp")
-    #print(tinterp,s,t,y,h,f)
     
     diff=np.matmul(np.matmul(f,h*BI),np.cumprod(np.tile(s,(4,1)),axis=0)) 
     if len(tinterp) == 1:

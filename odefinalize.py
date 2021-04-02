@@ -37,7 +37,6 @@ class odefinalize:
     '''
 
     def __init__(self, solver, printstats, statsvec, nout, tout, yout, haveeventfun, teout, yeout, ieout):
-        print(teout,yeout,ieout)
         self.solver=solver
         self.nout=nout
         self.tout=tout[0,0:nout]

@@ -78,7 +78,15 @@ def odearguments(solver, ode, tspan, y0, options, extras):
         normy=np.linalg.norm(y0)
     else:
         normy = 0
-    threshold=atol/rtol
+    
+    #TODO Fix threshold 1d or 2d
+    
+    if isinstance(atol,list):
+        threshold = [tol/rtol for tol in atol]
+    else:
+        threshold=atol/rtol
+    
+    print(threshold)
     hmax=max(0.1*abs(tfinal-t0), odeget(options, 'MaxStep', abs(0.1*(tfinal-t0))))
     htry=odeget(options,'InitialStep',0)
     

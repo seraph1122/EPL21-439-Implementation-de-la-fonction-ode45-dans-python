@@ -1,6 +1,6 @@
 
 function main()
-    fun = @cosbasic;
+    fun = @trigbasic;
     size = 2;
     tstart=-100;
     tend=100;
@@ -82,11 +82,11 @@ function execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,tex
         end
         try
             if any(strcmp(choices,'events'))
-                [t,y,te,ye,ie]=ode45(@cosbasic,tspan,y0,options);
+                [t,y,te,ye,ie]=ode45(fun,tspan,y0,options);
             else
-                [t,y]=ode45(@cosbasic,tspan,y0,options);
+                [t,y]=ode45(fun,tspan,y0,options)
             end
-            sol=ode45(@cosbasic,tspan,y0,options);
+            sol=ode45(fun,tspan,y0,options)
             succ = true;
         catch
             warning('Test failed');
@@ -106,6 +106,10 @@ end
 
 function dydt = cosbasic(t,y)
     dydt=[cos(t);2*cos(t)];
+end
+
+function dydt = trigbasic(t,y)
+    dydt = [y(1)*cos(t);y(2)*sin(t)];
 end
 
 function [value,isterminal,direction] = eventsbasic(t,y)
@@ -161,7 +165,8 @@ function option = randTol(opt,y0)
     end
     absArray=randsample(bool,1);
     if absArray && ~randNorm
-        randAbs=rand(1,length(y0)).*randsample(absexponent,1);
+        %randAbs=rand*randsample(absexponent,1);
+        randAbs=rand(1,length(y0)).*randsample(absexponent,1)
     else
         randAbs=rand*randsample(absexponent,1);
     end
@@ -194,7 +199,7 @@ end
 
 
 function option = randMatrix(opt,y0)
-    massexponent = [,1e-1,1,1e1];
+    massexponent = [1e-1,1,1e1];
     size = length(y0);
     mat = zeros(size,size);
     for i = 1:size
@@ -202,7 +207,6 @@ function option = randMatrix(opt,y0)
             mat(i,j)=rand*randsample(massexponent,1);
         end
     end
-    disp(mat)
     option = odeset(opt,'Mass',mat);
 end
 
