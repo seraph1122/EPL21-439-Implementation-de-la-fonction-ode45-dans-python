@@ -8,10 +8,7 @@ import scipy.sparse as sp
 def odemass(ode,t0,y0,options,extras):
     massType = 0
     massFcn = None
-    if (type(y0)==type([]) or type(y0)==type(np.array([]))):
-        massM = sp.eye(len(y0))
-    else:
-        massM = 1
+    massM = sp.eye(len(y0),format="csr")
     massArgs = None
     
     Moption = odeget(options,'Mass',None)

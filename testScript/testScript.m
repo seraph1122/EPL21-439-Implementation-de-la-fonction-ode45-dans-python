@@ -57,7 +57,7 @@ function execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,tex
         ye=[];
         ie=[];
         if any(strcmp(choices,'tol'))
-            options = randTol(options,y0);
+            options = randTol(options,y0)
         end
         if any(strcmp(choices,'refine'))
             options = randRefine(options);
@@ -84,9 +84,9 @@ function execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,tex
             if any(strcmp(choices,'events'))
                 [t,y,te,ye,ie]=ode45(fun,tspan,y0,options);
             else
-                [t,y]=ode45(fun,tspan,y0,options)
+                [t,y]=ode45(fun,tspan,y0,options);
             end
-            sol=ode45(fun,tspan,y0,options)
+            sol=ode45(fun,tspan,y0,options);
             succ = true;
         catch
             warning('Test failed');

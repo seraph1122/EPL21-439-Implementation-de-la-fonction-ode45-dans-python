@@ -51,7 +51,7 @@ class Testodemassexplicit(unittest.TestCase):
             for j in range(len(PL[0])):
                 self.assertEqual(odeArgs[1][i,j],PL[i,j])
                 self.assertEqual(odeArgs[2][i,j],U[i,j])
-        self.assertEqual(odeArgs[3],1)
+        self.assertEqual(odeArgs[3],[1])
         
         
         
@@ -68,12 +68,13 @@ class Testodemassexplicit(unittest.TestCase):
         self.assertEqual((superLU.U-odeArgs[1].U).nnz,0)
         for i in range(len(result)):
             self.assertAlmostEqual(y[i],result[i])
-        self.assertEqual(odeArgs[2],1)
+        self.assertEqual(odeArgs[2],[1])
         
         
         
     def test_odemassexplicit_mass2(self):
         odeFcn,odeArgs = odemassexplicit(2,self.f,self.extra,self.mass2,[])
+        
         y = feval(odeFcn,self.t,self.y,odeArgs)
         result = np.array([1,2,3])
 
@@ -83,7 +84,7 @@ class Testodemassexplicit(unittest.TestCase):
         self.assertEqual(odeArgs[1],self.mass2)
         for i in range(len(result)):
             self.assertAlmostEqual(y[i],result[i])
-        self.assertEqual(odeArgs[2],1)
+        self.assertEqual(odeArgs[2],[1])
         
         
         
@@ -98,7 +99,7 @@ class Testodemassexplicit(unittest.TestCase):
         self.assertEqual(odeArgs[1],self.mass3)
         for i in range(len(result)):
             self.assertAlmostEqual(y[i],result[i])
-        self.assertEqual(odeArgs[2],1)
+        self.assertEqual(odeArgs[2],[1])
         
         
 
