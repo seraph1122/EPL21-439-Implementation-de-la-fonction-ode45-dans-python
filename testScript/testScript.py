@@ -11,7 +11,7 @@ from ode import ode45
 import matplotlib.pyplot as plt
 
 def solve_ode(inputs,result):
-    print(inputs.get_options())
+    #print(inputs.get_options())
     sol=ode45(inputs.fun,inputs.tspan,inputs.y0,inputs.get_options(),inputs.varargin)
     fig = plt.gcf()
     fig.set_size_inches(8, 6)
@@ -63,7 +63,6 @@ class Inputs:
         "\nInitialStep : "+str(self.initialstep)+"\nMass : "+str(self.mass)+"\nMStateDependence : "+str(self.massstate)+ "\n\n"
 
     def set_fun(self, val):
-        
         self.fun=get_fun(val)
         
     def set_tspan(self, val):

@@ -57,13 +57,13 @@ function execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,tex
         ye=[];
         ie=[];
         if any(strcmp(choices,'tol'))
-            options = randTol(options,y0)
+            options = randTol(options,y0);
         end
         if any(strcmp(choices,'refine'))
             options = randRefine(options);
         end
         if any(strcmp(choices,'nonnegative'))
-            options = randNN(options,y0);
+            options = randNN(options,y0)
         end
         if any(strcmp(choices,'step'))
             options = randStep(options);

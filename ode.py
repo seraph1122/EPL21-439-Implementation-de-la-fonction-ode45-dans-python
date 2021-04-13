@@ -1,7 +1,7 @@
 import numpy as np
 from odeResult import odeResult
 from ntrp45 import ntrp45
-from odeargument import odearguments
+from odearguments import odearguments
 from odeget import odeget
 from odeevents import odeevents
 from feval import feval
@@ -21,9 +21,9 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
     nfevals = 0
   
     
-    neq, tspan, ntspan, nex, t0, tfinal, tdir, y0, f0, odeArgs, odeFcn, options, threshold, rtol, normcontrol, normy, hmax, htry, htspan, dataType = odearguments(solver_name, odefun, tspan, y0, options, varargin)
+    neq, tspan, ntspan, nex, t0, tfinal, tdir, y0, f0, odeArgs, odeFcn, options, threshold, rtol, normcontrol, normy, hmax, htry, htspan, dataType = odearguments(odefun, tspan, y0, options, varargin)
     nfevals = nfevals + 1
-    dataType='float64'
+    #dataType='float64'
     
     
     refine=max(1,odeget(options,'Refine',4))
@@ -102,7 +102,10 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
         if normcontrol:
             rh=(np.linalg.norm(f0)/ max(normy, threshold))/ (0.8 * math.pow(rtol,power))
         else:
-            rh=np.linalg.norm(f0 / np.maximum(np.abs(y),np.repeat(threshold,len(y))),np.inf) / (0.8 * math.pow(rtol,power))
+            if isinstance(threshold,list):
+                rh=np.linalg.norm(f0 / np.maximum(np.abs(y),threshold),np.inf) / (0.8 * math.pow(rtol,power))
+            else:
+                rh=np.linalg.norm(f0 / np.maximum(np.abs(y),np.repeat(threshold,len(y))),np.inf) / (0.8 * math.pow(rtol,power))
         if (absh * rh) > 1:
             absh =1/rh
         absh = max(absh,hmin)

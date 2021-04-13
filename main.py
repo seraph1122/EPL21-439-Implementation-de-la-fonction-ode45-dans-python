@@ -3,7 +3,7 @@ import numpy as np
 from ode import ode45
 import math
 import scipy.integrate as i
-import odeargument as arg
+import odearguments as arg
 from feval import feval
 
 
@@ -77,19 +77,17 @@ def nonnegative():
 #    def dydt(t,y):
 #        return np.cos(t)
     def dydt(t,y):
-        return [np.cos(t),np.cos(t),np.cos(t)]
+        return [-1,-t,-t*t]#[np.cos(t),np.cos(t),np.cos(t)]
     
-    
-    
-    
-    options={'NonNegative':[1]}
+     
+    options={'NonNegative':[0,2]}
     tspan=[0,4]
     y0=[1,2,3]
     r=ode45(dydt,tspan,y0,options)
-    print(r.y[0])
-    plt.plot(r.t,r.y[0])
-    plt.plot(r.t,r.y[1])
-    plt.plot(r.t,r.y[2])
+    #print(r.y[0])
+    plt.plot(r.tout,r.yout[0])
+    plt.plot(r.tout,r.yout[1])
+    plt.plot(r.tout,r.yout[2])
 
 
 def odemass1():
@@ -143,15 +141,29 @@ def simple_choosen_points():
     plt.plot(r.t,r.y[1])
     plt.plot(r.t,r.y[2])
     
+    
+def atol():
+    fig = plt.gcf()
+    fig.set_size_inches(8, 6)
+    def dydt(t,y):
+        return [math.cos(t),math.sin(t)]
+    
+    option={'AbsTol':[2.1e-6,4.5e-8]}
+    r = ode45(dydt,[0,10],[1,0],option)
+    plt.plot(r.tout,r.yout[0])
+    plt.plot(r.tout,r.yout[1])
+
+
 def main():
     #simple_choosen_points()
     #orbit()
     #ballode()
-    simple1()
-    #odemass2()
-    #nonnegative()
     #simple1()
-    ballode()
+    #odemass2()
+    nonnegative()
+    #simple1()
+    #ballode()
+    #atol()
 #    fig = plt.gcf()
 #    fig.set_size_inches(8, 6)
 #    
