@@ -6,6 +6,7 @@ import numpy as np
 import numbers as num
 import itertools
 from inspect import signature
+import warnings
 
 
 
@@ -76,7 +77,7 @@ def odearguments(ode, tspan, y0, options, extras):
     rtol=odeget(options,'RelTol',1e-3)
     if rtol < 100 * np.finfo(dataType).eps:
         rtol = 100 * np.finfo(dataType).eps
-        raise Warning('odearguments: rtol: rtol was too small')
+        warnings.warn('odearguments: rtol: rtol was too small')
     
     atol=odeget(options, 'AbsTol', 1e-6)
     normcontrol = (odeget(options, 'NormControl', 'off') == 'on')
@@ -88,11 +89,13 @@ def odearguments(ode, tspan, y0, options, extras):
     #TODO Fix threshold 1d or 2d
     
     if isinstance(atol,list):
+        if normcontrol:
+            raise ValueError('odearguments: NormControl: when \'on\' AbsTol must be a scalar')
         threshold = [tol/rtol for tol in atol]
     else:
         threshold=atol/rtol
     
-    hmax=max(0.1*abs(tfinal-t0), odeget(options, 'MaxStep', abs(0.1*(tfinal-t0))))
+    hmax=min(abs(tfinal-t0), abs(odeget(options, 'MaxStep', 0.1*(tfinal-t0))))
     htry=odeget(options,'InitialStep',0)
     
     odeFcn=ode
