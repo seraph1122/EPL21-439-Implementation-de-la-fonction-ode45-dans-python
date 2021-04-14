@@ -53,6 +53,12 @@ class odefinalize:
         self.statsvec=statsvec
         self.haveeventfun=haveeventfun
     
+    def get_solver(self):
+        return self.solver
+    
+    def get_size(self):
+        return self.nout
+    
     def get_ty(self):
         return self.tout,self.yout
     
@@ -62,10 +68,13 @@ class odefinalize:
     def get_y(self):
         return self.yout
     
-    def get_error(self):
+    def get_events(self):
         return self.teout, self.yeout, self.ieout
     
     def get_stats(self):
         return self.statsvec
+    
+    def has_events(self):
+        return self.haveeventfun
     
     
