@@ -11,9 +11,12 @@ def ntrp45(tinterp,t,y,h,f,idxNonNegative):
     [0,       9477/3392,   -729/106,    25515/6784, ],
     [0,        -11/7,        11/3,        -55/28,   ],
     [0,         3/2,         -4,            5/2,    ]])
-
+    
     if not isinstance(tinterp,np.ndarray):
-        tinterp=np.array([tinterp])
+        if isinstance(tinterp,list):
+            tinterp=np.array(tinterp)
+        else:
+            tinterp=np.array([tinterp])
     s = (tinterp - t)/h
     
     
@@ -24,7 +27,7 @@ def ntrp45(tinterp,t,y,h,f,idxNonNegative):
         tile=np.tile(y,(1,len(tinterp)))
     yinterp=tile+diff
     
-    ncumprod=np.array([np.ones(len(s)),2*s,1.5*s,3*s])
+    ncumprod=np.append(np.array([np.ones(len(s))]),np.cumprod([2*s,1.5*s,(4.0/3.0)*s],axis=0),axis=0)
     ypinterp=np.matmul(np.matmul(f,BI),ncumprod)
     if len(idxNonNegative)!=0:
         idx=[(i,j) for i in idxNonNegative for j in range(len(yinterp[0])) if yinterp[i][j]<0]
