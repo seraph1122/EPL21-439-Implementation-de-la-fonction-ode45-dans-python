@@ -21,7 +21,20 @@ def simple1():
     plt.plot(r.tout,r.yout[0])
     #plt.plot(r.tout,r.yout[1])
     #plt.plot(r.tout,r.yout[2])
+
+def simpleback():
+    fig = plt.gcf()
+    fig.set_size_inches(8, 6)
+    def dydt(t,y):
+        return [np.cos(t)]
     
+    tspan = [10,0]
+    y0 = [1]
+    #options={'NormControl':'on'}
+    r = ode45(dydt,tspan,y0)
+    print(r.ieout)
+    plt.plot(r.tout,r.yout[0])
+   
 def simple2():
     fig = plt.gcf()
     fig.set_size_inches(8, 6)
@@ -160,7 +173,8 @@ def main():
     #ballode()
     #simple1()
     #odemass2()
-    nonnegative()
+    simpleback()
+    #nonnegative()
     #simple1()
     #ballode()
     #atol()

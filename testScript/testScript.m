@@ -8,10 +8,21 @@ function main()
     y0end=100;
     events=@eventsbasic;
     mass=[];
+
+%     fun = @polybasic;
+%     size = 2;
+%     tstart=-10;
+%     tend=10;
+%     y0start=1;
+%     y0end=1;
+%     events=@eventsbasic;
+%     mass=[];
     
-    choices={'tol','refine','nonnegative','step'};
+    choices={'nonnegative'}%'tol','refine','nonnegative','step'};
     fileID = fopen('test.txt','w');
-    execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
+    for i=1:1
+        execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
+    end
     
     
 %     choices={};
@@ -63,7 +74,7 @@ function execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,tex
             options = randRefine(options);
         end
         if any(strcmp(choices,'nonnegative'))
-            options = randNN(options,y0)
+            options = randNN(options,y0);
         end
         if any(strcmp(choices,'step'))
             options = randStep(options);
@@ -110,6 +121,10 @@ end
 
 function dydt = trigbasic(t,y)
     dydt = [y(1)*cos(t);y(2)*sin(t)];
+end
+
+function dydt = polybasic(t,y)
+    dydt = [0.02*(3*t^5-52*t^3+42*t^2+145*t+18);0.02*(3*t^5-52*t^3+42*t^2+145*t+18);]
 end
 
 function [value,isterminal,direction] = eventsbasic(t,y)

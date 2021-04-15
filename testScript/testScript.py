@@ -11,18 +11,23 @@ from ode import ode45
 import matplotlib.pyplot as plt
 
 def solve_ode(inputs,result):
-    #print(inputs.get_options())
+    #print(inputs)
     sol=ode45(inputs.fun,inputs.tspan,inputs.y0,inputs.get_options(),inputs.varargin)
-    fig = plt.gcf()
-    fig.set_size_inches(8, 6)
-    plt.plot(sol.tout,sol.yout[0])
-    plt.plot(sol.tout,sol.yout[1])
-    print(result)
+    #print(len(sol.get_t()))
+    result.compare_ty(sol.get_t(),sol.get_y())
+    result.compare_stats(sol.get_stats())
+    print()
+#    fig = plt.gcf()
+#    fig.set_size_inches(8, 6)
+#    plt.plot(sol.tout,sol.yout[0])
+#    plt.plot(sol.tout,sol.yout[1])
+    #print(result)
     
 
 
 
 def get_fun(val):
+    f=None
     if val == 'cosbasic':
         def f(t,y):
             return [np.cos(t),2*np.cos(t)]
@@ -56,7 +61,11 @@ class Inputs:
         self.massstate=None
 
     def __str__(self):
-        return "Fun : "+str(self.fun)+"\nTspan : "+str(self.tspan)+"\nY0 : "+str(self.y0)+ \
+        if len(self.tspan)>2:
+            strtspan=str(len(self.tspan))
+        else:
+            strtspan=str(self.tspan)
+        return "Fun : "+str(self.fun)+"\nTspan : "+strtspan+"\nY0 : "+str(self.y0)+ \
         "\nVarargin : "+str(self.varargin)+"\nRelTol : "+str(self.reltol)+"\nAbsTol : "+str(self.abstol)+ \
         "\nNormControl : "+str(self.norm)+"\nRefine : "+str(self.refine)+"\nStats : "+str(self.stats)+ \
         "\nNonNegative : "+str(self.nonnegative)+"\nEvents : "+str(self.events)+"\nMaxStep : "+str(self.maxstep)+ \
@@ -179,44 +188,35 @@ class Results:
         "\nTout : "+str(self.tout)+"\nYout : "+str(self.yout)+"\nTeout : "+str(self.teout)+ \
         "\nYeout : "+str(self.yeout)+"\nIeout : "+str(self.ieout)+"\n\n"
     
-    def compare(self,tout,yout):
-        errt = 0
-        erry = 0
+    def compare_ty(self,tout,yout):
+        errt = 0.0
+        erry = 0.0
         
         t = self.tout
         y = self.yout
         
-        print(len(tout))
-        print(len(t))
-        print("Equal size : " + str(len(t)==len(tout)))
+        print("Equal size : " + str(len(t)==len(tout) and len(y)==len(yout)*len(yout[0])) + " |t| = "+str(len(t))+" |y| = "+str(yout.shape))
         
-        for i in range(t):
+        for i in range(len(t)):
+            for j in range(len(yout)):
+                if abs(yout[j][i]-y[j*len(t)+i])>erry:
+                    erry = abs(yout[j][i]-y[j*len(t)+i])
             if abs(tout[i]-t[i])>errt:
                 errt = abs(tout[i]-t[i])
         
         print("Error t : " + str(errt))
+        print("Error y : " + str(erry))
+        print()
     
-    def equal(self, tout,yout,nsteps,nfailed,nfevals,teout,yeout,ieout, tol):
-        neq = len(self.yout)
-        length = len(self.tout)
+    def compare_stats(self,statsvec):
+        print("Nsteps Expected : "+str(self.nsteps)+" Actual : "+str(statsvec[0]))
+        print("Nfailed Expected : "+str(self.nfailed)+" Actual : "+str(statsvec[1]))
+        print("Nfevals Expected : "+str(self.nfevals)+" Actual : "+str(statsvec[2]))
+        print()
         
-        if len(self.tout) != len(tout) or len(self.yout) != len(yout)*len(yout[0]):
-            return False
-        
-        if len(self.teout) != len(teout) or len(self.yeout) != len(yeout)*len(yeout[0]) or len(self.ieout) != len(ieout):
-            return False
-            
-        if self.nsteps != nsteps or self.nfailed != nfailed or self.nfevals != nfailed:
-            return False
-        
-        for i in range(length):
-            if self.tout[i]-tout[i]>tol:
-                return False
-            for j in range(neq):
-                if self.yout[j,i]-yout[j,i]>tol:
-                    return False
-        
-        return True
+    
+    def compare_events(self,teout,yeout,ieout):
+        print("Equal event size : " + str(len(self.teout)==len(teout)))
     
     
     def set_statvec(self, statsvec):
@@ -255,7 +255,7 @@ class Results:
         self.ieout=x
         
         
-def read_tests(filename):
+def read_tests(filename,names):
     f=open(filename,"r")
     results = []
     inputs = []
@@ -267,7 +267,10 @@ def read_tests(filename):
         for word in sp:
             key, values =word.split(":")
             if key == "Function":
-                inp.set_fun(values)
+                if not names:
+                    inp.set_fun(values)
+                else:
+                    inp.fun=values
             elif key == "Tspan":
                 val = values.split("#")
                 val.pop()
@@ -305,7 +308,10 @@ def read_tests(filename):
                     inp.set_nonnegative(val)
             elif key == "Events":
                 if values != '': 
-                    inp.set_events(values)
+                    if not names:
+                        inp.set_events(values)
+                    else:
+                        inp.events=values
             elif key == "MaxStep":
                 if values != '': 
                     inp.set_maxstep(values)
@@ -315,7 +321,10 @@ def read_tests(filename):
             elif key == "Mass":
                 val = values.split("#")
                 if len(val) == 1:
-                    inp.set_mass_fun(values)
+                    if not names:
+                        inp.set_mass_fun(values)
+                    else:
+                        inp.mass=values
                 else:
                     val.pop()
                     if len(val)>1:
@@ -362,10 +371,10 @@ def read_tests(filename):
         results.append(result)
         inputs.append(inp)
     return results,inputs
-            
-        
-results,inputs=read_tests("test.txt")
-for i in range(len(inputs)):
-    solve_ode(inputs[i],results[i])
+
+if __name__ == "__main__":
+    results,inputs=read_tests("test.txt",False)
+    for i in range(len(inputs)):
+        solve_ode(inputs[i],results[i])
 
     

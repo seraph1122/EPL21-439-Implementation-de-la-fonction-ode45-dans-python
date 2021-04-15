@@ -308,7 +308,6 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
             nfevals = nfevals+1
         f[:,0]=f[:,6]
         
-        nsteps+=1
     
     return odefinalize(solver_name,printstats,[nsteps,nfailed,nfevals],nout,tout,yout,haveEventFcn,teout,yeout,ieout)
     
