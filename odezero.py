@@ -45,7 +45,6 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
             if (tL == t) and any([vL[index]==0 and vR[index]!=0 for index in indzc]):
                 ttry = tL + tdir*0.5*tol
             else:
-                #
                 change = 1
                 for j in indzc:
                     if vL[j]==0:
@@ -73,7 +72,8 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                 
             
             ytry, discard = ntrp45(ttry,t,y,h,f,idxNonNegative)
-            ytry = ytry[0]
+            
+            #ytry = ytry[0]
             [vtry, discrad1, discard2] = feval(eventfun,ttry,ytry,eventargs)
             indzc = [i for i in range(len(direction)) if (direction[i]*(vtry[i]-vL[i])>=0) and (vtry[i]*vL[i] < 0 or vtry[i]*vL[i] == 0)]
             
@@ -121,7 +121,7 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
             iout=niout
         else:
             tout=np.append(tout,ntout)
-            yout=np.append(yout,nyout)
+            yout=np.append(yout,nyout,axis=1)
             iout=np.append(iout,niout)
                     
         

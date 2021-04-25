@@ -11,12 +11,11 @@ from ode import ode45
 import matplotlib.pyplot as plt
 
 def solve_ode(inputs,result):
-    #print(inputs)
     sol=ode45(inputs.fun,inputs.tspan,inputs.y0,inputs.get_options(),inputs.varargin)
     #print(len(sol.get_t()))
     result.compare_ty(sol.get_t(),sol.get_y())
     result.compare_stats(sol.get_stats())
-    print()
+    print(inputs)
 #    fig = plt.gcf()
 #    fig.set_size_inches(8, 6)
 #    plt.plot(sol.tout,sol.yout[0])
@@ -282,7 +281,7 @@ def read_tests(filename,names):
             elif key == "Varargin":
                 val = values.split("#")
                 val.pop()
-                if len(val)>1:
+                if val[0]!='':
                     inp.set_varargin(val)
             elif key == "RelTol":
                 if values != '': 
@@ -327,7 +326,7 @@ def read_tests(filename,names):
                         inp.mass=values
                 else:
                     val.pop()
-                    if len(val)>1:
+                    if val[0]!='':
                         inp.set_mass_mat(val)
             elif key == "MStateDependence":
                 if values != '': 
@@ -335,12 +334,12 @@ def read_tests(filename,names):
             elif key == "Tout":
                 val = values.split("#")
                 val.pop()
-                if len(val)>1:
+                if len(val)>=1:
                     result.set_tout(val)
             elif key == "Yout":
                 val = values.split("#")
                 val.pop()
-                if len(val)>1:
+                if len(val)>=1:
                     result.set_yout(val)
             elif key == "Nsteps":
                 statsvec[0]=values
@@ -351,17 +350,17 @@ def read_tests(filename,names):
             elif key == "Teout":
                 val = values.split("#")
                 val.pop()
-                if len(val)>1:
+                if len(val)>=1:
                     result.set_teout(val)
             elif key == "Yeout":
                 val = values.split("#")
                 val.pop()
-                if len(val)>1:
+                if len(val)>=1:
                     result.set_yeout(val)
             elif key == "Ieout":
                 val = values.split("#")
                 val.pop()
-                if len(val)>1:
+                if len(val)>=1:
                     result.set_ieout(val)
             else:
                 print(key)

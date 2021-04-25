@@ -170,10 +170,10 @@ def atol():
 def main():
     #simple_choosen_points()
     #orbit()
-    #ballode()
+    ballode()
     #simple1()
     #odemass2()
-    simpleback()
+    #simpleback()
     #nonnegative()
     #simple1()
     #ballode()

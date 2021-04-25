@@ -18,7 +18,7 @@ function main()
 %     events=@eventsbasic;
 %     mass=[];
     
-    choices={'nonnegative'}%'tol','refine','nonnegative','step'};
+    choices={'nonnegative','refine','tol'}%'tol','refine','nonnegative','step'};
     fileID = fopen('test.txt','w');
     for i=1:1
         execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
@@ -69,6 +69,7 @@ function execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,tex
         ie=[];
         if any(strcmp(choices,'tol'))
             options = randTol(options,y0);
+            disp(options)
         end
         if any(strcmp(choices,'refine'))
             options = randRefine(options);
@@ -92,6 +93,7 @@ function execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,tex
             options = odeset(options,'Mass',mass,'MStateDependence','weak');
         end
         try
+            save('options')
             if any(strcmp(choices,'events'))
                 [t,y,te,ye,ie]=ode45(fun,tspan,y0,options);
             else
@@ -186,7 +188,7 @@ function option = randTol(opt,y0)
         randAbs=rand*randsample(absexponent,1);
     end
     option=odeset(option,'AbsTol',randAbs);
-    option=odeset(option,'RelTol',rand*randsample(relexponent,1));
+    option=odeset(option,'RelTol',rand*randsample(relexponent,1))
 end
 
 function option = randRefine(opt)
@@ -248,10 +250,10 @@ function writetext(fileID,sol,tspan,y0,t,y,te,ye,ie)
     
     %Options
     fprintf(fileID,'RelTol:');
-    fprintf(fileID,'%.15f',sol.extdata.options.RelTol);
+    fprintf(fileID,'%.30f',sol.extdata.options.RelTol);
     fprintf(fileID,' ');
     fprintf(fileID,'AbsTol:');
-    fprintf(fileID,'%.15f#',sol.extdata.options.AbsTol);
+    fprintf(fileID,'%.30f#',sol.extdata.options.AbsTol);
     fprintf(fileID,' ');
     fprintf(fileID,'NormControl:');
     fprintf(fileID,'%s',sol.extdata.options.NormControl);
