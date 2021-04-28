@@ -12,8 +12,7 @@ def odemass(ode,t0,y0,options,extras):
     massArgs = None
     
     Moption = odeget(options,'Mass',None)
-
-    if Moption==None:
+    if isinstance(Moption,type(None)):
         return massType, massM, massFcn
     elif not callable(Moption):
         massType = 1

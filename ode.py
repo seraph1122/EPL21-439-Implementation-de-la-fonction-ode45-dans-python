@@ -102,8 +102,11 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
             rh=(np.linalg.norm(f0)/ max(normy, threshold))/ (0.8 * math.pow(rtol,power))
         else:
             if isinstance(threshold,list):
+                print("Test")
                 rh=np.linalg.norm(f0 / np.maximum(np.abs(y),threshold),np.inf) / (0.8 * math.pow(rtol,power))
+                print(rh)
             else:
+                print("Fail")
                 rh=np.linalg.norm(f0 / np.maximum(np.abs(y),np.repeat(threshold,len(y))),np.inf) / (0.8 * math.pow(rtol,power))
         if (absh * rh) > 1:
             absh =1/rh
@@ -230,11 +233,10 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
                     done = True
                     
         
-        
         if outputAt == "SolverSteps":
             nout_new=1
-            tout_new=tnew
-            yout_new=ynew
+            tout_new=np.array([tnew])
+            yout_new=np.transpose(np.array([ynew]))
         elif outputAt == "RefinedSteps":    
             tref=t+(tnew-t)*s
             nout_new=refine

@@ -1,6 +1,6 @@
 
 function main()
-    fun = @trigbasic;
+    fun = @cosbasic;
     size = 2;
     tstart=-100;
     tend=100;
@@ -18,10 +18,10 @@ function main()
 %     events=@eventsbasic;
 %     mass=[];
     
-    choices={'nonnegative','refine','tol'}%'tol','refine','nonnegative','step'};
+    choices={'nonnegative','tol','step','refine','massmatrix'}%'tol','refine','nonnegative','step'};
     fileID = fopen('test.txt','w');
-    for i=1:1
-        execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
+    for i=1:10
+        execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID);
     end
     
     
@@ -126,7 +126,7 @@ function dydt = trigbasic(t,y)
 end
 
 function dydt = polybasic(t,y)
-    dydt = [0.02*(3*t^5-52*t^3+42*t^2+145*t+18);0.02*(3*t^5-52*t^3+42*t^2+145*t+18);]
+    dydt = [0.02*(3*t^5-52*t^3+42*t^2+145*t+18);0.02*(3*t^5-52*t^3+42*t^2+145*t+18)];
 end
 
 function [value,isterminal,direction] = eventsbasic(t,y)

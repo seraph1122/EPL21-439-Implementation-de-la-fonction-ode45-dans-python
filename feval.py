@@ -1,12 +1,11 @@
 import numpy as np
 
 def feval(fun,t,y,extra):
-    
     if isinstance(y,type(None)):
         try:
             result = fun(t,*extra)
-        except:
-            raise Exception("ode45: feval: FunctionError")
+        except Exception as e:
+            raise Exception("ode45: feval: "+str(e))
         return result
     else:
         try:
@@ -14,6 +13,6 @@ def feval(fun,t,y,extra):
                 if y.ndim != 1:
                     y = np.squeeze(y)
             result = fun(t,y,*extra)
-        except:
-            raise Exception("ode45: feval: FunctionError")
+        except Exception as e:
+            raise Exception("ode45: feval: "+str(e))
         return result

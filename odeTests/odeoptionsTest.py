@@ -209,7 +209,7 @@ class Testodeoptions(unittest.TestCase):
         try:
             extra = []
             def events(t, y):
-                return [3.2, 2.1],[1, 0],[-1, 1]
+                return [3.2],[1],[-1]
             options = {'Events':events}
             odeoptions(options, t, y, extra)
             

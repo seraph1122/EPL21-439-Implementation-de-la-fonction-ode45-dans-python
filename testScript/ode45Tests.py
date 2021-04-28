@@ -32,6 +32,15 @@ class Testode45(unittest.TestCase):
             elif inp.fun == 'trigbasic2':
                 self.trigtol(res)
                 pass
+            elif inp.fun == 'cosbasic1':
+                self.cosbasic1(res)
+                pass
+            elif inp.fun == 'cosbasic2':
+                self.cosbasic2(res)
+                pass
+            elif inp.fun == 'cosbasic3':
+                self.cosbasic3(res)
+                pass
             else:
                 print("Function not recognized : "+str(inp.fun))
             
@@ -98,6 +107,48 @@ class Testode45(unittest.TestCase):
         self.compare_ty(result,sol.tout,sol.yout)
         self.compare_stats(result,sol.get_stats())
         
+    def cosbasic1(self,result):
+        def f(t,y):
+            return [math.cos(t),2*math.cos(t)]    
+        
+        mass = np.array([[0.46,0.16],[6.4,0.11]])
+        opt={'Mass' : mass, 'NonNegative' : [0]}
+        
+        Tspan = [8, 59]
+        Y0 =[84, 0.9]
+        sol=ode45(f,Tspan,Y0,opt)
+        self.compare_ty(result,sol.tout,sol.yout)
+        self.compare_stats(result,sol.get_stats())
+    
+    
+    
+    def cosbasic2(self,result):
+        def f(t,y):
+            return [math.cos(t),2*math.cos(t)]
+        
+        
+        opt={'AbsTol':[1e-2,2e-7],'RelTol':1e-6}
+        tspan = [8000000000000,8000000000010]
+        y0 = [1, 0]
+        sol=ode45(f,tspan,y0,opt)
+        self.compare_ty(result,sol.tout,sol.yout)
+        self.compare_stats(result,sol.get_stats())
+        
+        
+    def cosbasic3(self,result):
+        
+        def f(t,y):
+            return [math.cos(t),2*math.cos(t)]
+
+
+        opt={'AbsTol':[1e-2,2e-7],'RelTol':1e-6}
+        tspan = np.linspace(0,10,21)
+        y0 = [1, 0]
+        sol=ode45(f,tspan,y0,opt)
+        self.compare_ty(result,sol.tout,sol.yout)
+        self.compare_stats(result,sol.get_stats())
+    
+    
     
     def compare_ty(self,res,tout,yout):
         

@@ -9,155 +9,196 @@ sys.path.append(parentdir)
 
 from odenonnegative import odenonnegative
 
-
-
 class Testodenonnegative(unittest.TestCase):
+    
     
     def setUp(self):
         
-        def f_int(t,y,c):
-            return -1*t + y + c
+        
+        def f_int(t,y):
+            return [-1*t + y[0]]
         
         def f_vec(t,y,c):
             return [-1*t+c+y[0],-2*t+c]
         
-        def f_sin(t,y):
-            return math.sin(t)
+        def f_trig(t,y):
+            return [-1*math.sin(t),math.cos(t)]
             
         
         self.f_int = f_int
         self.f_vec = f_vec
-        self.f_sin = f_sin
-        
-        
-    def test_odenonnegative_int_basic1(self):
-         y = [1,2]
-         c = 1 
-         t = np.linspace(0,4,num=9)
-         threshold = 0.001
-         expectedThresh = [0.001,0.001]
-         expected = np.array([[2,3],[1.5,2.5],[1,2],[0.5,1.5],[0,1],[0,0.5],[0,0],[0,0],[0,0]])
-         idxNonNegative = [0,1]
-         odeFcn,thresholdNonNegative = odenonnegative(self.f_int,y,threshold,idxNonNegative)
-         self.assertEqual(len(thresholdNonNegative),2)
-         for i in range(len(idxNonNegative)):
-             self.assertEqual(thresholdNonNegative[i],expectedThresh[i])
-
-         for i in range(len(t)):
-             yp = odeFcn(t[i],y,[c])
-             self.assertEqual(yp[0],expected[i,0])
-             self.assertEqual(yp[1],expected[i,1])
-         
-            
-    def test_odenonnegative_int_basic2(self):
-         y = [1,2]
-         c = 1 
-         t = np.linspace(0,4,num=9)
-         threshold = [0.001,0.002]
-         expectedThresh = [0.001,0.002]
-         expected = np.array([[2,3],[1.5,2.5],[1,2],[0.5,1.5],[0,1],[0,0.5],[0,0],[0,0],[0,0]])
-         idxNonNegative = [0,1]
-         odeFcn,thresholdNonNegative = odenonnegative(self.f_int,y,threshold,idxNonNegative)
-         self.assertEqual(len(thresholdNonNegative),2)
-         for i in range(len(idxNonNegative)):
-             self.assertEqual(thresholdNonNegative[i],expectedThresh[i])
-
-         for i in range(len(t)):
-             yp = odeFcn(t[i],y,[c])
-             self.assertEqual(yp[0],expected[i,0])
-             self.assertEqual(yp[1],expected[i,1])
-    
-    
-    def test_odenonnegative_int_basic3(self):
-         y = [1,2]
-         c = 1 
-         t = np.linspace(0,4,num=9)
-         threshold = 0.001
-         expectedThresh = [0.001]
-         expected = np.array([[2,3],[1.5,2.5],[1,2],[0.5,1.5],[0,1],[-0.5,0.5],[-1,0],[-1.5,0],[-2,0]])
-         idxNonNegative = [1]
-         odeFcn,thresholdNonNegative = odenonnegative(self.f_int,y,threshold,idxNonNegative)
-         self.assertEqual(len(thresholdNonNegative),1)
-         for i in range(len(idxNonNegative)):
-             self.assertEqual(thresholdNonNegative[i],expectedThresh[i])
-
-         for i in range(len(t)):
-             yp = odeFcn(t[i],y,[c])
-             self.assertEqual(yp[0],expected[i,0])
-             self.assertEqual(yp[1],expected[i,1])
-         
-            
-    def test_odenonnegative_vec_basic1(self):
-         y = [1,2]
-         c = 1 
-         t = np.linspace(0,4,num=9)
-         threshold = 0.001
-         expectedThresh = [0.001,0.001]
-         expected = np.array([[2,1],[1.5,0],[1,0],[0.5,0],[0,0],[0,0],[0,0],[0,0],[0,0]])
-         idxNonNegative = [0,1]
-         odeFcn,thresholdNonNegative = odenonnegative(self.f_vec,y,threshold,idxNonNegative)
-         self.assertEqual(len(thresholdNonNegative),2)
-         for i in range(len(idxNonNegative)):
-             self.assertEqual(thresholdNonNegative[i],expectedThresh[i])
-
-         for i in range(len(t)):
-             yp = odeFcn(t[i],y,[c])
-             self.assertEqual(yp[0],expected[i,0])
-             self.assertEqual(yp[1],expected[i,1])
-    
-    
-    def test_odenonnegative_vec_basic2(self):
-         y = [1,2]
-         c = 1 
-         t = np.linspace(0,4,num=9)
-         threshold = 0.001
-         expectedThresh = [0.001]
-         expected = np.array([[2,1],[1.5,0],[1,-1],[0.5,-2],[0,-3],[0,-4],[0,-5],[0,-6],[0,-7]])
-         idxNonNegative = [0]
-         odeFcn,thresholdNonNegative = odenonnegative(self.f_vec,y,threshold,idxNonNegative)
-         self.assertEqual(len(thresholdNonNegative),1)
-         for i in range(len(idxNonNegative)):
-             self.assertEqual(thresholdNonNegative[i],expectedThresh[i])
-
-         for i in range(len(t)):
-             yp = odeFcn(t[i],y,[c])
-             self.assertEqual(yp[0],expected[i,0])
-             self.assertEqual(yp[1],expected[i,1])
-          
-            
-    def test_odenonnegative_sin_basic1(self):
-         y = [0]
-         t = np.linspace(0,10,num=500)
-         threshold = 0.002
-         expectedThresh = [0.002]
-         idxNonNegative = [0]
-         odeFcn,thresholdNonNegative = odenonnegative(self.f_sin,y,threshold,idxNonNegative)
-         self.assertEqual(len(thresholdNonNegative),1)
-         for i in range(len(idxNonNegative)):
-             self.assertEqual(thresholdNonNegative[i],expectedThresh[i])
-
-         for i in range(len(t)):
-             yp = odeFcn(t[i],y,[])
-             self.assertGreaterEqual(yp[0],0.0)
-         
-            
-    def test_odenonnegative_sin_basic2(self):
-         y = [0,0]
-         t = np.linspace(0,10,num=500)
-         threshold = 0.002
-         expectedThresh = [0.002,0.002]
-         idxNonNegative = [0]
-         odeFcn,thresholdNonNegative = odenonnegative(self.f_sin,y,threshold,idxNonNegative)
-         self.assertEqual(len(thresholdNonNegative),1)
-         for i in range(len(idxNonNegative)):
-             self.assertEqual(thresholdNonNegative[i],expectedThresh[i])
-
-         for i in range(len(t)):
-             yp = odeFcn(t[i],y,[])
-             self.assertGreaterEqual(yp[0],0.0)
-             self.assertGreaterEqual(yp[1],math.sin(t[i]))
-         
+        self.f_trig = f_trig
         
     
+    
+    def test_odenonnegative_indexfail(self):
+        idxNonNegative=[1]
+        threshold=1e-3
+        self.assertRaises(IndexError,odenonnegative,self.f_int,[1],threshold,idxNonNegative)
+        
+        idxNonNegative=[-1]
+        threshold=[1e-4,3e-5]
+        self.assertRaises(IndexError,odenonnegative,self.f_vec,[1,3],threshold,idxNonNegative)
+        
+        idxNonNegative=[0,1]
+        threshold=1e-4
+        self.assertRaises(IndexError,odenonnegative,self.f_int,[1],threshold,idxNonNegative)
+        
+        idxNonNegative=[0,1,2]
+        threshold=[1e-4,3e-5]
+        self.assertRaises(IndexError,odenonnegative,self.f_trig,[1,2],threshold,idxNonNegative)
+        
+        
+    
+    def test_odenonnegative_y0fail(self):
+        idxNonNegative=[0]
+        threshold=1e-3
+        self.assertRaises(ValueError,odenonnegative,self.f_int,[-1],threshold,idxNonNegative)
+        
+        idxNonNegative=[0]
+        threshold=[1e-4,3e-5]
+        self.assertRaises(ValueError,odenonnegative,self.f_vec,[-1,-1],threshold,idxNonNegative)
+        
+        idxNonNegative=[0,1]
+        threshold=1e-4
+        self.assertRaises(ValueError,odenonnegative,self.f_vec,[-1,1],threshold,idxNonNegative)
+        
+        idxNonNegative=[0,1]
+        threshold=[1e-4,3e-5]
+        self.assertRaises(ValueError,odenonnegative,self.f_trig,[0,-2],threshold,idxNonNegative)
+    
+    
+    
+    def test_odenonnegative_threshint(self):
+        idxNonNegative=[0]
+        threshold=1e-3
+        y=[2]
+        odeFcn,thresholdNonNegative=odenonnegative(self.f_int,y,threshold,idxNonNegative)
+        t=np.linspace(0,4,num=9)
+        for i in t:
+            yp=odeFcn(i,y)
+            ycomp=self.f_int(i,y)
+            for j in range(len(yp)):
+                if j in idxNonNegative:
+                    self.assertEqual(yp[j],ycomp[j])
+        
+        self.assertEqual(len(thresholdNonNegative),1)
+        self.assertEqual(thresholdNonNegative[0],1e-3)
+        
+        
+        idxNonNegative=[1]
+        threshold=1e-4
+        y=[2,1]
+        odeFcn,thresholdNonNegative=odenonnegative(self.f_vec,y,threshold,idxNonNegative)
+        t=np.linspace(0,5,num=11)
+        for i in t:
+            yp=odeFcn(i,y,[1])
+            ycomp=self.f_vec(i,y,[1])
+            for j in range(len(yp)):
+                if j in idxNonNegative:
+                    self.assertEqual(yp[j],ycomp[j])
+        
+        self.assertEqual(len(thresholdNonNegative),1)
+        self.assertEqual(thresholdNonNegative[0],1e-4)
+        
+        idxNonNegative=[0,1]
+        threshold=1e-4
+        y=[2,1]
+        odeFcn,thresholdNonNegative=odenonnegative(self.f_vec,y,threshold,idxNonNegative)
+        t=np.linspace(0,5,num=11)
+        for i in t:
+            yp=odeFcn(i,y,[1])
+            ycomp=self.f_vec(i,y,[1])
+            for j in range(len(yp)):
+                if j in idxNonNegative:
+                    self.assertEqual(yp[j],ycomp[j])
+        
+        self.assertEqual(len(thresholdNonNegative),2)
+        self.assertEqual(thresholdNonNegative[0],1e-4)
+        self.assertEqual(thresholdNonNegative[1],1e-4)
+        
+        idxNonNegative=[0]
+        threshold=1e-4
+        y=[0.5,1]
+        odeFcn,thresholdNonNegative=odenonnegative(self.f_trig,y,threshold,idxNonNegative)
+        t=np.linspace(0,19,num=100)
+        for i in t:
+            yp=odeFcn(i,y)
+            ycomp=self.f_trig(i,y)
+            for j in range(len(yp)):
+                if j in idxNonNegative:
+                    self.assertEqual(yp[j],ycomp[j])
+        
+        self.assertEqual(len(thresholdNonNegative),1)
+        self.assertEqual(thresholdNonNegative[0],1e-4)
+        
+        
+        idxNonNegative=[1,0]
+        threshold=1e-4
+        y=[0.5,1]
+        odeFcn,thresholdNonNegative=odenonnegative(self.f_trig,y,threshold,idxNonNegative)
+        t=np.linspace(0,19,num=100)
+        for i in t:
+            yp=odeFcn(i,y)
+            ycomp=self.f_trig(i,y)
+            for j in range(len(yp)):
+                if j in idxNonNegative:
+                    self.assertEqual(yp[j],ycomp[j])
+        
+        self.assertEqual(len(thresholdNonNegative),2)
+        self.assertEqual(thresholdNonNegative[0],1e-4)
+        self.assertEqual(thresholdNonNegative[1],1e-4)
+        
+        
+    
+    def test_odenonnegative_threshvec(self):
+        idxNonNegative=[0]
+        threshold=[1e-3]
+        y=[2]
+        odeFcn,thresholdNonNegative=odenonnegative(self.f_int,y,threshold,idxNonNegative)
+        t=np.linspace(0,4,num=9)
+        for i in t:
+            yp=odeFcn(i,y)
+            ycomp=self.f_int(i,y)
+            for j in range(len(yp)):
+                if j in idxNonNegative:
+                    self.assertEqual(yp[j],ycomp[j])
+        
+        self.assertEqual(len(thresholdNonNegative),1)
+        self.assertEqual(thresholdNonNegative[0],1e-3)
+        
+        
+        idxNonNegative=[1]
+        threshold=[1e-4,1e-3]
+        y=[2,1]
+        odeFcn,thresholdNonNegative=odenonnegative(self.f_vec,y,threshold,idxNonNegative)
+        t=np.linspace(0,5,num=11)
+        for i in t:
+            yp=odeFcn(i,y,[1])
+            ycomp=self.f_vec(i,y,[1])
+            for j in range(len(yp)):
+                if j in idxNonNegative:
+                    self.assertEqual(yp[j],ycomp[j])
+        
+        self.assertEqual(len(thresholdNonNegative),1)
+        self.assertEqual(thresholdNonNegative[0],1e-3)
+        
+        
+        idxNonNegative=[0,1]
+        threshold=[2e-4,1e-3]
+        y=[0.5,1]
+        odeFcn,thresholdNonNegative=odenonnegative(self.f_trig,y,threshold,idxNonNegative)
+        t=np.linspace(0,19,num=100)
+        for i in t:
+            yp=odeFcn(i,y)
+            ycomp=self.f_trig(i,y)
+            for j in range(len(yp)):
+                if j in idxNonNegative:
+                    self.assertEqual(yp[j],ycomp[j])
+        
+        self.assertEqual(len(thresholdNonNegative),2)
+        self.assertEqual(thresholdNonNegative[0],2e-4)
+        self.assertEqual(thresholdNonNegative[1],1e-3)
+
 if __name__ == "__main__":
     unittest.main()

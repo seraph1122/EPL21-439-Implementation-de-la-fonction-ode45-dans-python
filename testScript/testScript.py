@@ -15,11 +15,11 @@ def solve_ode(inputs,result):
     #print(len(sol.get_t()))
     result.compare_ty(sol.get_t(),sol.get_y())
     result.compare_stats(sol.get_stats())
-    print(inputs)
-#    fig = plt.gcf()
-#    fig.set_size_inches(8, 6)
-#    plt.plot(sol.tout,sol.yout[0])
-#    plt.plot(sol.tout,sol.yout[1])
+    
+    #fig = plt.gcf()
+    #fig.set_size_inches(8, 6)
+    #plt.plot(sol.tout,sol.yout[0])
+    #plt.plot(sol.tout,sol.yout[1])
     #print(result)
     
 
@@ -135,7 +135,7 @@ class Inputs:
         x = np.zeros((l,l))
         for i in range(l):
             for j in range(l):
-                x[i,j]=float(val[i*l + j])
+                x[i,j]=float(val[j*l + i])
         self.mass=x
     
     def set_massstate(self, val):
@@ -214,8 +214,26 @@ class Results:
         print()
         
     
+
+        
     def compare_events(self,teout,yeout,ieout):
+        te=self.teout
+        ye=self.yeout
+        ie=self.ieout
+        
+        
         print("Equal event size : " + str(len(self.teout)==len(teout)))
+        print("Equal event size : " + str(len(self.teout)==len(teout)))
+        print("Equal event size : " + str(len(self.teout)==len(teout)))
+        self.assertEqual(len(te),len(teout))
+        self.assertEqual(len(ye),len(yeout)*len(yeout[0]))
+        self.assertEqual(len(ie),len(ieout))
+        
+        for i in range(len(te)):
+            for j in range(len(yeout)):
+                self.assertAlmostEqual(ye[j*len(te)+i],yeout[j][i])
+            self.assertAlmostEqual(teout[i],te[i])
+            self.assertEqual(ieout[i],ie[i]-1)
     
     
     def set_statvec(self, statsvec):

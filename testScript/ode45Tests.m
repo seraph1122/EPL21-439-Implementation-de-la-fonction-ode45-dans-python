@@ -1,40 +1,39 @@
 
 function main()
-    fileID = fopen('ode.txt','w');
+    fileID = fopen('ode45.txt','w');
     
-% %     Poly NN with nonnegative
-%     opt=odeset('NonNegative',[1,2])
-%     tspan = [-6,5]
-%     y0=[25,50,25,50]
-%     [t,y]=ode45(@polyNN,tspan,y0,opt);
-%     sol=ode45(@polyNN,tspan,y0,opt);
-%     
-%     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
-%     
-% %     Ball ode
-%     y0 = [0;20];
-%     tspan = [0,30];
-%     opt = odeset('Events',@ballevents);
-%     [t,y,te,ye,ie] = ode45(@ball,tspan,y0,opt)
-%     sol=ode45(@ball,tspan,y0,opt);
-%     %disp(sol.stats)
-%     %plot(t,y)
-%     
-%     writetext(fileID,sol,tspan,y0,t,y,te,ye,ie);
-% 
-% %     Trig events
-%     y0 = [0;-1];
-%     tspan = [0,30];
-%     opt = odeset('Events',@trigevents);
-%     [t,y,te,ye,ie] = ode45(@trigbasic,tspan,y0,opt);
-%     sol=ode45(@trigbasic,tspan,y0,opt);
-%     %plot(t,y)
-%     %hold on;
-%     %disp(ye(:,1))
-%     %scatter(te,ye(:,1))
-%     %scatter(te,ye(:,2))
+%     Poly NN with nonnegative
+    opt=odeset('NonNegative',[1,2])
+    tspan = [-6,5]
+    y0=[25,50,25,50]
+    [t,y]=ode45(@polyNN,tspan,y0,opt);
+    sol=ode45(@polyNN,tspan,y0,opt);
     
-    %writetext(fileID,sol,tspan,y0,t,y,te,ye,ie);
+    writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
+    
+%     Ball ode
+    y0 = [0;20];
+    tspan = [0,30];
+    opt = odeset('Events',@ballevents);
+    [t,y,te,ye,ie] = ode45(@ball,tspan,y0,opt)
+    sol=ode45(@ball,tspan,y0,opt);
+    %disp(sol.stats)
+    %plot(t,y)
+    
+    writetext(fileID,sol,tspan,y0,t,y,te,ye,ie);
+
+%     Trig events
+    y0 = [0;-1];
+    tspan = [0,30];
+    opt = odeset('Events',@trigevents);
+    [t,y,te,ye,ie] = ode45(@trigbasic,tspan,y0,opt);
+    sol=ode45(@trigbasic,tspan,y0,opt);
+    %plot(t,y)
+    %hold on;
+    %disp(ye(:,1))
+    %scatter(te,ye(:,1))
+    %scatter(te,ye(:,2))
+    writetext(fileID,sol,tspan,y0,t,y,te,ye,ie);
     
     
     opt=odeset('RelTol' , 0.0009,'AbsTol' , 3.e-5,'NormControl' , 'on','Refine' , 3,'NonNegative' , [1, 2]);
@@ -44,7 +43,40 @@ function main()
     [t,y]=ode45(@trigbasic2,tspan,y0,opt);
     sol=ode45(@trigbasic2,tspan,y0,opt);
     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
+
     
+    mass = [[0.46,0.16];[6.4,0.11]]
+    opt=odeset('Mass',mass,'NonNegative' , [1])
+    tspan = [8, 59];
+    y0 = [84; 0.9];
+    [t,y]=ode45(@cosbasic1,tspan,y0,opt);
+    sol=ode45(@cosbasic1,tspan,y0,opt);
+    writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
+    
+    
+    opt=odeset('AbsTol',[1e-2,2e-7],'RelTol',1e-6);
+    tspan = [8000000000000,8000000000010];
+    y0 = [1; 0];
+    [t,y]=ode45(@cosbasic2,tspan,y0,opt);
+    sol=ode45(@cosbasic2,tspan,y0,opt);
+    writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
+    
+    
+    opt=odeset('AbsTol',[1e-2,2e-7],'RelTol',1e-6);
+    tspan = [0:0.5:10];
+    y0 = [1; 0];
+    [t,y]=ode45(@cosbasic3,tspan,y0,opt);
+    sol=ode45(@cosbasic3,tspan,y0,opt);
+    plot(t,y)
+    writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
+    
+%     opt=odeset();
+%     tspan = [0:0.05:10];
+%     y0 = [1; 0];
+%     [t,y]=ode45(@cosbasic2,tspan,y0,opt);
+%     sol=ode45(@cosbasic2,tspan,y0,opt);
+%     plot(t,y)
+%     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
 end
 
 
@@ -64,6 +96,18 @@ end
 
 function dydt = trigbasic2(t,y)
     dydt = [y(1)*cos(t);y(2)*sin(t)];
+end
+
+function dydt = cosbasic1(t,y)
+    dydt=[cos(t);2*cos(t)];
+end
+
+function dydt = cosbasic2(t,y)
+    dydt=[cos(t);2*cos(t)];
+end
+
+function dydt = cosbasic3(t,y)
+    dydt=[cos(t);2*cos(t)];
 end
 
 function [value,isterminal,direction] = ballevents(t,y)
