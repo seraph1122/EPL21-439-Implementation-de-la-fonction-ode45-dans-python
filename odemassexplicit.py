@@ -1,4 +1,3 @@
-from odeget import odeget
 from feval import feval
 
 import numpy as np
@@ -8,6 +7,39 @@ import scipy.sparse.linalg as spl
 
 
 def odemassexplicit(massType,odeFcn,odeArgs,massFcn,massM):
+    
+    '''Event helper function for ode45.
+        
+    Parameters
+    ----------
+    t0 : scalar
+        Initial time to be evaluated.
+    y0 : array_like, shape(n,)
+        Initial values.
+    options : dictionary
+        Options, see options detail for more information.
+    extras : array_like, shape(k,)
+        Extra arguments in the function evaluation, if no extra arguments are used then extra is empty. 
+        
+    Returns
+    -------
+    haveeventfun : bool
+        True if event function contained in options, False otherwise.
+    eventFcn : callable || None
+        Event function if contained in the options, None otherwise.
+    eventArgs : array_like, shape(k,) || None
+        extras if event function contained in options, None otherwise.
+    eventValue
+        Values of the event function for the initial values if event function contained in options,
+        None otherwise.
+    teout : ndarray, shape(0,)
+        Empty numpy array to store events t values.
+    yeout : ndarray, shape(0,)
+        Empty numpy array to store events y values.
+    ieout : ndarray, shape(0,)
+        Empty numpy array to store events index values.
+    '''
+    
     if massType == 1:
         if type(massM)==type(sp.csr_matrix([])):
             superLU = spl.splu(massM)
@@ -27,6 +59,40 @@ def odemassexplicit(massType,odeFcn,odeArgs,massFcn,massM):
 
 
 def explicitSolverHandleMass1sparse(t,y,odeFcn,superLU,varargin):
+    
+    '''Auxiliary mass function.
+        
+    Parameters
+    ----------
+    t : scalar
+        Time to be evaluated.
+    y : array_like, shape(n,)
+        Evaluated values.
+    odeFcn : dictionary
+        Options, see options detail for more information.
+    superLU
+    varargin : array_like, shape(k,)
+        Extra arguments in the function evaluation, if no extra arguments are used then extra is empty. 
+        
+    Returns
+    -------
+    haveeventfun : bool
+        True if event function contained in options, False otherwise.
+    eventFcn : callable || None
+        Event function if contained in the options, None otherwise.
+    eventArgs : array_like, shape(k,) || None
+        extras if event function contained in options, None otherwise.
+    eventValue
+        Values of the event function for the initial values if event function contained in options,
+        None otherwise.
+    teout : ndarray, shape(0,)
+        Empty numpy array to store events t values.
+    yeout : ndarray, shape(0,)
+        Empty numpy array to store events y values.
+    ieout : ndarray, shape(0,)
+        Empty numpy array to store events index values.
+    '''
+    
     ode = feval(odeFcn,t,y,varargin)
     yp = superLU.solve(np.array(ode))
     return yp

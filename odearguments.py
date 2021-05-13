@@ -2,9 +2,7 @@ import numpy as np
 from feval import feval
 from odeoptions import odeoptions
 from odeget import odeget
-import numpy as np
 import numbers as num
-import itertools
 from inspect import signature
 import warnings
 
@@ -12,7 +10,68 @@ import warnings
 
 def odearguments(ode, tspan, y0, options, extras): 
     
-    
+    '''Function to verify the inputs of ode45 meet the specifications.
+        
+    Parameters
+    ----------
+    ode : callable
+        ode function which will be evaluated.
+    tspan : array_like, shape(2,) || shape(k,)
+        Span over which the function should be evaluated, can be either be a pair [t_0,t_end] or an
+        array of specific points.
+    y0 : array_like, shape(n,)
+        Initial values.
+    options : dictionary
+        Options, see options detail for more information.
+    extras : array_like, shape(k,)
+        Extra arguments in the function evaluation, if no extra arguments are used then extra is empty. 
+        
+        
+    Returns
+    -------
+    neq : integer
+        Number of equations.
+    tspan : array_like, shape(2,) || shape(k,)
+        Span over which the function should be evaluated, can be either be a pair [t_0,t_end] or an
+        array of specific points.
+    ntspan : integer
+        Size of tspan.
+    nex : 2
+        Used in main ode45
+    t0 : scalar
+        First time to be evaluated.
+    tfinal : scalar
+        Final time to be evaluated.
+    tdir : scalar
+        Whether tfinal is greater than t0, 1 if tfinal is greater and -1 otherwise.
+    y0 : array_like, shape(n,)
+        Initial values.
+    f0 : array_like, shape(n,)
+        Evaluation of ode for intial values y0.
+    args : array_like, shape(k,)
+        Extra arguments.
+    odeFcn : callable
+        ode function.
+    options : dictionary.
+        options dictionary.
+    threshold : scalar || array_like, shape(n,)
+        Difference between the absolute tolerance and relative tolerance, if the AbsTol option is a scalar
+        then threshold is a scalar, and a array if AbsTol is an array.
+    rtol : scalar
+        Relative tolerance (RelTol option).
+    normcontrol : Bool
+        True if NormControl option is 'on', False otherwise.
+    normy : scalar
+        Norm of the intial values.
+    hmax : scalar
+        Maximum step size.
+    htry : scalar
+        Initial step size.
+    htspan : scalar
+        Difference between t_0 and t_end.
+    dataType : numpy dtype
+        float64.
+    '''
     
     #Checking y0
     if not isinstance(y0,np.ndarray) and not isinstance(y0,list):
@@ -85,9 +144,7 @@ def odearguments(ode, tspan, y0, options, extras):
         normy=np.linalg.norm(y0)
     else:
         normy = 0
-    
-    #TODO Fix threshold 1d or 2d
-    
+        
     if isinstance(atol,list):
         if normcontrol:
             raise ValueError('odearguments: NormControl: when \'on\' AbsTol must be a scalar')

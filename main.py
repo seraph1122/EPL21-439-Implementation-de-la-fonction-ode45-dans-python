@@ -5,6 +5,7 @@ import math
 import scipy.integrate as i
 import odearguments as arg
 from feval import feval
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def simple1():
@@ -166,11 +167,58 @@ def atol():
     plt.plot(r.tout,r.yout[0])
     plt.plot(r.tout,r.yout[1])
 
+def solveivp_demo():
+    fig = plt.figure()
+    fig.set_size_inches(8, 6)
+    
+    def dydt(t,y):
+        return [-y[0]+np.cos(t)]
+    
+    tspan = np.linspace(0,15,100)
+    res = i.solve_ivp(dydt,[0,15],[10],t_eval=tspan)
+    plt.plot(res.t,res.y[0])
+    plt.title('Solution of y\' = y + cos(t), y(0)=10')
+    plt.xlabel('t')
+    plt.ylabel('y')
+        
+    
+
+def lorenz_demo():
+    fig = plt.figure()
+    fig.set_size_inches(20, 16)
+    fig.patch.set_alpha(1)
+    ax = fig.gca(projection='3d')
+    #ax = fig.add_subplot(111, projection='3d')
+    
+    sigma = 10.
+    rho = 28.
+    beta = 8./3.
+    x0 = [0,1,2]
+    dt=0.001
+    tspan = np.linspace(dt,50,50000)
+    
+    def lorenz(t,y):
+        A = np.array([[-1*beta,0,y[1]],[0,-1*sigma,sigma],[-1*y[1],rho,-1]])
+        y=np.transpose(np.array([y]))
+        return np.transpose(np.matmul(A,y))[0]
+    
+    options={'RelTol':1e-12,'AbsTol':[1e-12,1e-12,1e-12]}
+    r = ode45(lorenz,tspan,x0,options)
+    ax.plot(r.yout[0],r.yout[1],r.yout[2])
+    ax.patch.set_facecolor('white')
+    ax.grid(False)
+
+    plt.show()
+    
+
+    
 
 def main():
     #simple_choosen_points()
     #orbit()
-    ballode()
+    solveivp_demo()
+    #lorenz_demo()
+    #ballode()
     #simple1()
     #odemass2()
     #simpleback()

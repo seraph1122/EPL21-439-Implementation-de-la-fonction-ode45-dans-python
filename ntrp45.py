@@ -2,6 +2,32 @@ import numpy as np
 
 def ntrp45(tinterp,t,y,h,f,idxNonNegative):
     
+    '''Interpolation function for ode45.
+        
+    Parameters
+    ----------
+    tinterp : scalar || array_like, shape(k,)
+        Time to approximate the solution.
+    t : scalar
+        Current time.
+    y : array_like, shape(k,n) || shape(n,)
+        Currently evaluated points.
+    h : scalar
+        Size of step.
+    f : ndarray, shape(n,7)
+        Evaluated derivative points.
+    idxNonNegative : array_like, shape(m,)
+        Non negative solutions.
+        
+        
+    Returns
+    -------
+    yinterp : array_like, shape()
+        Esitimation at tinterp.
+    ypinterp : array_like, shape()
+        Derivative points for tinterp.
+    '''
+    
     BI = np.array([
     [1,       -183/64,      37/12,       -145/128,  ],
     [0,          0,           0,            0,      ],
@@ -17,7 +43,6 @@ def ntrp45(tinterp,t,y,h,f,idxNonNegative):
         else:
             tinterp=np.array([tinterp])
     
-    #print("tinterp : "+str(tinterp))
     s = (tinterp - t)/h
     
     

@@ -10,15 +10,21 @@ from odemassexplicit import odemassexplicit
 from odenonnegative import odenonnegative
 import math
 from odefinalize import odefinalize
+import warnings
 
-def ode45(odefun,tspan,y0,options={},varargin=[]):
+def ode45(odefun,tspan,y0,options=None,varargin=None):
     
     solver_name='ode45'
 
     nsteps=0
     nfailed = 0
     nfevals = 0
-  
+    
+    if isinstance(options,type(None)):
+        options = {}
+    
+    if isinstance(varargin,type(None)):
+        varargin = []
     
     neq, tspan, ntspan, nex, t0, tfinal, tdir, y0, f0, odeArgs, odeFcn, options, threshold, rtol, normcontrol, normy, hmax, htry, htspan, dataType = odearguments(odefun, tspan, y0, options, varargin)
     nfevals = nfevals + 1
@@ -38,21 +44,21 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
     printstats = (odeget(options,'Stats','off') == 'on')
     
     
-    haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(odeFcn,t0,y0,options,varargin)
+    haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(t0,y0,options,varargin)
     
     
-    Mtype, M, Mfun =  odemass(odeFcn,t0,y0,options,varargin)
+    Mtype, M, Mfun =  odemass(t0,y0,options,varargin)
     if Mtype > 0:
         odeFcn,odeArgs = odemassexplicit(Mtype,odeFcn,odeArgs,Mfun,M)
         f0 = feval(odeFcn,t0,y0,odeArgs)
-        nfevals = nfevals + 1;
+        nfevals = nfevals + 1
     
      
         
     idxNonNegative = odeget(options,'NonNegative',[])
     nonNegative = False
     if len(idxNonNegative) != 0:
-        odeFcn,thresholdNonNegative = odenonnegative(odeFcn,y0,threshold,idxNonNegative);
+        odeFcn,thresholdNonNegative = odenonnegative(odeFcn,y0,threshold,idxNonNegative)
         f0 = feval(odeFcn,t0,y0,odeArgs)
         nfevals = nfevals + 1
         nonNegative = True
@@ -66,8 +72,8 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
     yout=np.array([],dtype=dataType)
     tout=np.array([],dtype=dataType)
     if ntspan > 2:
-          tout = np.zeros((1,ntspan),dtype=dataType)
-          yout = np.zeros((neq,ntspan),dtype=dataType)
+        tout = np.zeros((1,ntspan),dtype=dataType)
+        yout = np.zeros((neq,ntspan),dtype=dataType)
     else:
         chunk = min(max(100,50*refine), refine+math.floor(math.pow(2,11)/neq))
         tout = np.zeros((1,chunk),dtype=dataType)
@@ -102,11 +108,8 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
             rh=(np.linalg.norm(f0)/ max(normy, threshold))/ (0.8 * math.pow(rtol,power))
         else:
             if isinstance(threshold,list):
-                print("Test")
                 rh=np.linalg.norm(f0 / np.maximum(np.abs(y),threshold),np.inf) / (0.8 * math.pow(rtol,power))
-                print(rh)
             else:
-                print("Fail")
                 rh=np.linalg.norm(f0 / np.maximum(np.abs(y),np.repeat(threshold,len(y))),np.inf) / (0.8 * math.pow(rtol,power))
         if (absh * rh) > 1:
             absh =1/rh
@@ -143,7 +146,7 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
             
             tnew = t + hA[5]
             if done:
-              tnew = tfinal
+                tnew = tfinal
             h = tnew - t 
             
             
@@ -176,7 +179,7 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
             if err > rtol:
                 nfailed = nfailed + 1
                 if absh <= hmin:
-                    raise Warning("ode45: ode45: IntegrationTolNotMet "+str(t)+" "+str(hmin))
+                    warnings.warn("ode45: ode45: IntegrationTolNotMet "+str(t)+" "+str(hmin))
                     return odefinalize(solver_name,printstats,[nsteps,nfailed,nfevals],nout,tout,yout,haveEventFcn,teout,yeout,ieout)
 
                     
@@ -226,7 +229,7 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
                     
                 if stop:
                     taux = t + (te[-1] - t)*A
-                    discard,f[:,1:7]=ntrp45(taux,t,np.transpose(np.array([y])),h,f,idxNonNegative)
+                    _,f[:,1:7]=ntrp45(taux,t,np.transpose(np.array([y])),h,f,idxNonNegative)
                     tnew = te[-1]
                     ynew = ye[:,-1]
                     h = tnew - t
@@ -242,7 +245,7 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
             nout_new=refine
             tout_new=tref.copy()
             tout_new=np.append(tout_new,tnew)
-            yout_new,discard=ntrp45(tref,t,np.transpose(np.array([y])),h,f,idxNonNegative)
+            yout_new,_=ntrp45(tref,t,np.transpose(np.array([y])),h,f,idxNonNegative)
             yout_new=np.append(yout_new,np.transpose(np.array([ynew])),axis=1)
         elif outputAt == "RequestedPoints":
             nout_new=0
@@ -252,7 +255,7 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
                 if tdir * (tnew - tspan[nex-1]) < 0:
                     if haveEventFcn and stop:
                         nout_new=nout_new+1
-                        tout_new=np.appaned(tout_new,tnew)
+                        tout_new=np.append(tout_new,tnew)
                         if len(yout_new)==0:
                             yout_new=np.transpose(np.array([ynew]))
                         else:
@@ -265,7 +268,7 @@ def ode45(odefun,tspan,y0,options={},varargin=[]):
                 if tspan[nex-1] == tnew:
                     yout_temp = np.transpose(np.array([ynew]))    
                 else:
-                    yout_temp,discard = ntrp45(tspan[nex-1],t,y,h,f,idxNonNegative)
+                    yout_temp,_ = ntrp45(tspan[nex-1],t,y,h,f,idxNonNegative)
                 
                 if len(yout_new)==0:
                     yout_new=yout_temp

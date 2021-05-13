@@ -1,42 +1,42 @@
 
 
 class odefinalize:
-    
-    '''Class to create an object with the solutions of the ode45 integration.
-        
-    Parameters
-    ----------
-    solver : string
-        Name of the solver used.
-    printstats : boolean
-        Boolean determining whether this function should print stats of the integration 
-        process. These stats are the number of successful steps, the number of failed 
-        steps, and the number of functions evaluated.
-    statsvec : array_like, shape(3,)
-        Array containing number of successful steps, the number of failed steps, and the
-        number of functions evaluated.
-    nout : integer
-        Number of point evaluated during the integration proccess.
-    tout : ndarray, shape(1,m)
-        Array containing all the points t evaluated. This array is larger or equal to the
-        number of points actually evaluated (m >= nout), the rest contains zeros.
-    yout : ndarray, shape(n,m)
-        Array containing all the results of the evaluation for the points in tout. This 
-        array is larger or equal to the number of points actually evaluated (m >= nout),
-        the rest contains zeros.
-    haveeventfun : boolean
-        Boolean determining whether there was an event function passed as option.
-    teout : ndarray, shape(k,)
-        Array containing the t points with an event.
-    yeout : ndarray, shape(n,k)
-        Array containing the evaluated values for all teout points with an event.
-    ieout : ndarray, shape(k,)
-        Array containing the index of yeout values with an event.
-
-
-    '''
 
     def __init__(self, solver, printstats, statsvec, nout, tout, yout, haveeventfun, teout, yeout, ieout):
+    
+        '''Class to create an object with the solutions of the ode45 integration.
+            
+        Parameters
+        ----------
+        solver : string
+            Name of the solver used.
+        printstats : boolean
+            Boolean determining whether this function should print stats of the integration 
+            process. These stats are the number of successful steps, the number of failed 
+            steps, and the number of functions evaluated.
+        statsvec : array_like, shape(3,)
+            Array containing number of successful steps, the number of failed steps, and the
+            number of functions evaluated.
+        nout : integer
+            Number of point evaluated during the integration proccess.
+        tout : ndarray, shape(1,m)
+            Array containing all the points t evaluated. This array is larger or equal to the
+            number of points actually evaluated (m >= nout), the rest contains zeros.
+        yout : ndarray, shape(n,m)
+            Array containing all the results of the evaluation for the points in tout. This 
+            array is larger or equal to the number of points actually evaluated (m >= nout),
+            the rest contains zeros.
+        haveeventfun : boolean
+            Boolean determining whether there was an event function passed as option.
+        teout : ndarray, shape(k,)
+            Array containing the t points with an event.
+        yeout : ndarray, shape(n,k)
+            Array containing the evaluated values for all teout points with an event.
+        ieout : ndarray, shape(k,)
+            Array containing the index of yeout values with an event.
+    
+        '''
+        
         self.solver=solver
         self.nout=nout
         self.tout=tout[0,0:nout]

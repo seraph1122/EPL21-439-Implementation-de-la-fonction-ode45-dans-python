@@ -94,7 +94,8 @@ class Testode45(unittest.TestCase):
         self.compare_ty(result,sol.tout,sol.yout)
         self.compare_stats(result,sol.get_stats())
         self.compare_events(result,teout,yeout,ieout)
-        
+    
+    
     def trigtol(self,result):
         def f(t,y):
             return [y[0]*np.cos(t),y[1]*np.sin(t)]    
@@ -106,7 +107,8 @@ class Testode45(unittest.TestCase):
         sol=ode45(f,Tspan,Y0,opt)
         self.compare_ty(result,sol.tout,sol.yout)
         self.compare_stats(result,sol.get_stats())
-        
+    
+    
     def cosbasic1(self,result):
         def f(t,y):
             return [math.cos(t),2*math.cos(t)]    
@@ -123,10 +125,10 @@ class Testode45(unittest.TestCase):
     
     
     def cosbasic2(self,result):
+        
         def f(t,y):
             return [math.cos(t),2*math.cos(t)]
-        
-        
+
         opt={'AbsTol':[1e-2,2e-7],'RelTol':1e-6}
         tspan = [8000000000000,8000000000010]
         y0 = [1, 0]
@@ -141,7 +143,7 @@ class Testode45(unittest.TestCase):
             return [math.cos(t),2*math.cos(t)]
 
 
-        opt={'AbsTol':[1e-2,2e-7],'RelTol':1e-6}
+        opt={'AbsTol':[1e-2,2e-7],'RelTol':1e-6,'InitialStep':0.2}
         tspan = np.linspace(0,10,21)
         y0 = [1, 0]
         sol=ode45(f,tspan,y0,opt)

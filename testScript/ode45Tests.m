@@ -62,7 +62,7 @@ function main()
     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
     
     
-    opt=odeset('AbsTol',[1e-2,2e-7],'RelTol',1e-6);
+    opt=odeset('AbsTol',[1e-2,2e-7],'RelTol',1e-6,'InitialStep',0.2);
     tspan = [0:0.5:10];
     y0 = [1; 0];
     [t,y]=ode45(@cosbasic3,tspan,y0,opt);
@@ -70,13 +70,6 @@ function main()
     plot(t,y)
     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
     
-%     opt=odeset();
-%     tspan = [0:0.05:10];
-%     y0 = [1; 0];
-%     [t,y]=ode45(@cosbasic2,tspan,y0,opt);
-%     sol=ode45(@cosbasic2,tspan,y0,opt);
-%     plot(t,y)
-%     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
 end
 
 
@@ -109,6 +102,8 @@ end
 function dydt = cosbasic3(t,y)
     dydt=[cos(t);2*cos(t)];
 end
+
+%function dydt = cosbasic3(t,y)
 
 function [value,isterminal,direction] = ballevents(t,y)
 value = [y(1)];
