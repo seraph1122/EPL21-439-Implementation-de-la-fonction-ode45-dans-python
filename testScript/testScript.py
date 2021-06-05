@@ -2,7 +2,6 @@ import numpy as np
 import os
 import sys
 
-#Code taken from https://codeolives.com/2020/01/10/python-reference-module-in-parent-directory/
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
@@ -12,15 +11,8 @@ import matplotlib.pyplot as plt
 
 def solve_ode(inputs,result):
     sol=ode45(inputs.fun,inputs.tspan,inputs.y0,inputs.get_options(),inputs.varargin)
-    #print(len(sol.get_t()))
     result.compare_ty(sol.get_t(),sol.get_y())
     result.compare_stats(sol.get_stats())
-    
-    #fig = plt.gcf()
-    #fig.set_size_inches(8, 6)
-    #plt.plot(sol.tout,sol.yout[0])
-    #plt.plot(sol.tout,sol.yout[1])
-    #print(result)
     
 
 

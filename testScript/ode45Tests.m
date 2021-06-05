@@ -3,23 +3,19 @@ function main()
     fileID = fopen('ode45.txt','w');
     
 %     Poly NN with nonnegative
-    opt=odeset('NonNegative',[1,2])
-    tspan = [-6,5]
-    y0=[25,50,25,50]
+    opt=odeset('NonNegative',[1,2]);
+    tspan = [-6,5];
+    y0=[25,50,25,50];
     [t,y]=ode45(@polyNN,tspan,y0,opt);
     sol=ode45(@polyNN,tspan,y0,opt);
-    
     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
     
 %     Ball ode
     y0 = [0;20];
     tspan = [0,30];
     opt = odeset('Events',@ballevents);
-    [t,y,te,ye,ie] = ode45(@ball,tspan,y0,opt)
+    [t,y,te,ye,ie] = ode45(@ball,tspan,y0,opt);
     sol=ode45(@ball,tspan,y0,opt);
-    %disp(sol.stats)
-    %plot(t,y)
-    
     writetext(fileID,sol,tspan,y0,t,y,te,ye,ie);
 
 %     Trig events
@@ -28,25 +24,19 @@ function main()
     opt = odeset('Events',@trigevents);
     [t,y,te,ye,ie] = ode45(@trigbasic,tspan,y0,opt);
     sol=ode45(@trigbasic,tspan,y0,opt);
-    %plot(t,y)
-    %hold on;
-    %disp(ye(:,1))
-    %scatter(te,ye(:,1))
-    %scatter(te,ye(:,2))
     writetext(fileID,sol,tspan,y0,t,y,te,ye,ie);
     
     
     opt=odeset('RelTol' , 0.0009,'AbsTol' , 3.e-5,'NormControl' , 'on','Refine' , 3,'NonNegative' , [1, 2]);
     tspan = [19, 53];
     y0 = [6; 38];
-
     [t,y]=ode45(@trigbasic2,tspan,y0,opt);
     sol=ode45(@trigbasic2,tspan,y0,opt);
     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
 
     
-    mass = [[0.46,0.16];[6.4,0.11]]
-    opt=odeset('Mass',mass,'NonNegative' , [1])
+    mass = [[0.46,0.16];[6.4,0.11]];
+    opt=odeset('Mass',mass,'NonNegative' , [1]);
     tspan = [8, 59];
     y0 = [84; 0.9];
     [t,y]=ode45(@cosbasic1,tspan,y0,opt);
@@ -67,7 +57,6 @@ function main()
     y0 = [1; 0];
     [t,y]=ode45(@cosbasic3,tspan,y0,opt);
     sol=ode45(@cosbasic3,tspan,y0,opt);
-    plot(t,y)
     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
     
 end
@@ -76,7 +65,7 @@ end
 %%
 
 function dydt = polyNN(t,y)
-    dydt = [0.02*(3*t^5-62*t^3+42*t^2+45*t+18);0.02*(3*t^5-62*t^3+42*t^2+45*t+18);0.02*(3*t^5-62*t^3+42*t^2+45*t+18);0.02*(3*t^5-62*t^3+42*t^2+45*t+18)]
+    dydt = [0.02*(3*t^5-62*t^3+42*t^2+45*t+18);0.02*(3*t^5-62*t^3+42*t^2+45*t+18);0.02*(3*t^5-62*t^3+42*t^2+45*t+18);0.02*(3*t^5-62*t^3+42*t^2+45*t+18)];
 end
 
 function dydt = ball(t,y)
@@ -102,8 +91,6 @@ end
 function dydt = cosbasic3(t,y)
     dydt=[cos(t);2*cos(t)];
 end
-
-%function dydt = cosbasic3(t,y)
 
 function [value,isterminal,direction] = ballevents(t,y)
 value = [y(1)];

@@ -5,7 +5,6 @@ import scipy.linalg as lg
 import scipy.sparse.linalg as spl
 
 
-#Code taken from https://codeolives.com/2020/01/10/python-reference-module-in-parent-directory/
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)

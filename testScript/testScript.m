@@ -1,5 +1,6 @@
 
 function main()
+    %Example
     fun = @cosbasic;
     size = 2;
     tstart=-100;
@@ -8,54 +9,13 @@ function main()
     y0end=100;
     events=@eventsbasic;
     mass=[];
-
-%     fun = @polybasic;
-%     size = 2;
-%     tstart=-10;
-%     tend=10;
-%     y0start=1;
-%     y0end=1;
-%     events=@eventsbasic;
-%     mass=[];
     
-    choices={'nonnegative','tol','step','refine','massmatrix'}%'tol','refine','nonnegative','step'};
+    choices={'nonnegative','tol','step','refine','massmatrix'}
     fileID = fopen('test.txt','w');
     for i=1:10
         execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID);
     end
     
-    
-%     choices={};
-%     fileID = fopen('basictest.txt','w');
-%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
-%     
-%     choices={'tol'};
-%     fileID = fopen('toltest.txt','w');
-%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
-%     
-%     choices={'refine'};
-%     fileID = fopen('refinetest.txt','w');
-%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
-%     
-%     choices={'nonnegative'};
-%     fileID = fopen('nntest.txt','w');
-%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
-%     
-%     choices={'step'};
-%     fileID = fopen('basic.txt','w');
-%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
-%     
-%     choices={'events'};
-%     fileID = fopen('eventstest.txt','w');
-%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
-%     
-%     choices={'massmatrix'};
-%     fileID = fopen('massmatrixtest.txt','w');
-%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
-%     
-%     choices={};
-%     fileID = fopen('alltest.txt','w');
-%     execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID)
     
 end
 
@@ -182,7 +142,6 @@ function option = randTol(opt,y0)
     end
     absArray=randsample(bool,1);
     if absArray && ~randNorm
-        %randAbs=rand*randsample(absexponent,1);
         randAbs=rand(1,length(y0)).*randsample(absexponent,1)
     else
         randAbs=rand*randsample(absexponent,1);

@@ -2,7 +2,6 @@ import os, sys, unittest, math
 import numpy as np
 from testScript import read_tests
 
-#Code taken from https://codeolives.com/2020/01/10/python-reference-module-in-parent-directory/
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)

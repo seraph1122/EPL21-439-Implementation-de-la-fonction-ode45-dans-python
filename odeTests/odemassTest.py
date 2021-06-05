@@ -2,7 +2,6 @@ import unittest, os, sys
 import numpy as np
 import scipy.sparse as sp
 
-#Code taken from https://codeolives.com/2020/01/10/python-reference-module-in-parent-directory/
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
@@ -45,7 +44,7 @@ class Testodemass(unittest.TestCase):
      
     def test_odemass_int_nomass(self):
         opts = {}
-        massType, massM, massFcn = odemass(self.ode_int,self.t0,self.y0_int,opts,[])
+        massType, massM, massFcn = odemass(self.t0,self.y0_int,opts,[])
         self.assertEqual(massType,0)
         self.assertEqual(massM[0,0],1)
         self.assertEqual(massFcn,None)
@@ -53,7 +52,7 @@ class Testodemass(unittest.TestCase):
         
     def test_odemass_int_matrix(self):
         opts = {'Mass':[3]}
-        massType, massM, massFcn = odemass(self.ode_int,self.t0,self.y0_int,opts,[])
+        massType, massM, massFcn = odemass(self.t0,self.y0_int,opts,[])
         self.assertEqual(massType,1)
         self.assertEqual(massM,[3])
         self.assertEqual(massFcn,None)
@@ -61,7 +60,7 @@ class Testodemass(unittest.TestCase):
         
     def test_odemass_int_function_time(self):
         opts = {'Mass':self.mass_time_int,'MStateDependence':'none'}
-        massType, massM, massFcn = odemass(self.ode_int,self.t0,self.y0_int,opts,[])
+        massType, massM, massFcn = odemass(self.t0,self.y0_int,opts,[])
         self.assertEqual(massType,2)
         self.assertEqual(massM,[2])
         self.assertEqual(massFcn,self.mass_time_int)
@@ -69,7 +68,7 @@ class Testodemass(unittest.TestCase):
     
     def test_odemass_int_function_state_extra(self):
         opts = {'Mass':self.mass_state_int}
-        massType, massM, massFcn = odemass(self.ode_int,self.t0,self.y0_int,opts,[])
+        massType, massM, massFcn = odemass(self.t0,self.y0_int,opts,[])
         self.assertEqual(massType,3)
         self.assertEqual(massM,[4])
         self.assertEqual(massFcn,self.mass_state_int)
@@ -77,7 +76,7 @@ class Testodemass(unittest.TestCase):
         
     def test_odemass_int_function_state(self):
         opts = {'Mass':self.mass_state_int,'MStateDependence':'weak'}
-        massType, massM, massFcn = odemass(self.ode_int,self.t0,self.y0_int,opts,[])
+        massType, massM, massFcn = odemass(self.t0,self.y0_int,opts,[])
         self.assertEqual(massType,3)
         self.assertEqual(massM,[4])
         self.assertEqual(massFcn,self.mass_state_int)
@@ -85,7 +84,7 @@ class Testodemass(unittest.TestCase):
         
     def test_odemass_vec_nomass(self):
         opts = {}
-        massType, massM, massFcn = odemass(self.ode_vec,self.t0,self.y0_vec,opts,[])
+        massType, massM, massFcn = odemass(self.t0,self.y0_vec,opts,[])
         self.assertEqual(massType,0)
         sparse = sp.eye(2)
         self.assertEqual((sparse - massM).nnz, 0)
@@ -94,7 +93,7 @@ class Testodemass(unittest.TestCase):
         
     def test_odemass_vec_matrix(self):
         opts = {'Mass':[[1, 2],[2, 3]]}
-        massType, massM, massFcn = odemass(self.ode_vec,self.t0,self.y0_vec,opts,[])
+        massType, massM, massFcn = odemass(self.t0,self.y0_vec,opts,[])
         self.assertEqual(massType,1)
         self.assertEqual(massM,[[1, 2],[2, 3]])
         self.assertEqual(massFcn,None)
@@ -102,7 +101,7 @@ class Testodemass(unittest.TestCase):
         
     def test_odemass_vec_function_time(self):
         opts = {'Mass':self.mass_time_vec,'MStateDependence':'none'}
-        massType, massM, massFcn = odemass(self.ode_vec,self.t0,self.y0_vec,opts,[])
+        massType, massM, massFcn = odemass(self.t0,self.y0_vec,opts,[])
         self.assertEqual(massType,2)
         array = np.array([[2,3],[2,3]])
         for i in range(len(array)):
@@ -113,7 +112,7 @@ class Testodemass(unittest.TestCase):
     
     def test_odemass_vec_function_state_extra(self):
         opts = {'Mass':self.mass_state_vec}
-        massType, massM, massFcn = odemass(self.ode_vec,self.t0,self.y0_vec,opts,[])
+        massType, massM, massFcn = odemass(self.t0,self.y0_vec,opts,[])
         self.assertEqual(massType,3)
         array = np.array([[1,4],[2,3]])
         for i in range(len(array)):
@@ -124,7 +123,7 @@ class Testodemass(unittest.TestCase):
         
     def test_odemass_vec_function_state(self):
         opts = {'Mass':self.mass_state_vec,'MStateDependence':'weak'}
-        massType, massM, massFcn = odemass(self.ode_vec,self.t0,self.y0_vec,opts,[])
+        massType, massM, massFcn = odemass(self.t0,self.y0_vec,opts,[])
         self.assertEqual(massType,3)
         array = np.array([[1,4],[2,3]])
         for i in range(len(array)):

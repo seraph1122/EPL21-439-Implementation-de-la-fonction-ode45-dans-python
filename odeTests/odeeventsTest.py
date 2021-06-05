@@ -1,7 +1,6 @@
 import unittest, os, sys
 import numpy as np
 
-#Code taken from https://codeolives.com/2020/01/10/python-reference-module-in-parent-directory/
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
@@ -19,7 +18,7 @@ class Testodeevents(unittest.TestCase):
         y0 = [1.4,7.6]
         options={}
         extra=[]
-        haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(f,t0,y0,options,extra)
+        haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(t0,y0,options,extra)
         
         self.assertEqual(haveEventFcn,False)
         self.assertEqual(eventFcn,None)
@@ -41,7 +40,7 @@ class Testodeevents(unittest.TestCase):
         y0 = [1.4,7.6]
         options={}
         extra=[1]
-        haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(f,t0,y0,options,extra)
+        haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(t0,y0,options,extra)
         
         self.assertEqual(haveEventFcn,False)
         self.assertEqual(eventFcn,None)
@@ -70,7 +69,7 @@ class Testodeevents(unittest.TestCase):
         y0 = [1.4,7.6]
         options={'Events':event}
         extra=[]
-        haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(f,t0,y0,options,extra)
+        haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(t0,y0,options,extra)
         
         self.assertEqual(haveEventFcn,True)
         self.assertEqual(eventFcn,event)
@@ -99,7 +98,7 @@ class Testodeevents(unittest.TestCase):
         y0 = [1.4,7.6]
         options={'Events':event}
         extra=[1]
-        haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(f,t0,y0,options,extra)
+        haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(t0,y0,options,extra)
         
         self.assertEqual(haveEventFcn,True)
         self.assertEqual(eventFcn,event)
