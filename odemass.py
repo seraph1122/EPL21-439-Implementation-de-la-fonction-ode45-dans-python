@@ -58,7 +58,7 @@ def odemass(t0, y0, options, extras):
         elif Mstdep == 'weak':
             massType = 3
         else:
-            raise Exception('{}:odemass:MStateDependenceMassType'.format(Mstdep))
+            raise ValueError('odemass: MStateDependenceMass: Wrong type for MStateDependenceMass')
             
         if massType > 2:
             massM = feval(massFcn,t0,y0,massArgs)

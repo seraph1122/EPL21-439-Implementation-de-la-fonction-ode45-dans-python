@@ -6,7 +6,7 @@ def odeget(options, name, default):
     Parameters
     ----------
     options : dictionary
-        Dictionary containing the options of the ode45 execution in the form {'name':value,...}.
+        Options, see ode45 sepifications for more information.
     name : string
         Name of the option to retreive.
     default : variable

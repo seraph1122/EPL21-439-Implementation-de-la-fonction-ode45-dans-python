@@ -395,6 +395,7 @@ def lorenz_demo():
     ax.grid(False)
     plt.show()
 
+
     
 if __name__ == "__main__":
     
@@ -402,6 +403,7 @@ if __name__ == "__main__":
     height = 6
     font = 12
     
+    #Series of demos to illustrate the use and options of ode45
     simple_demo(width,height,font)
     backwards_tspan_demo(width,height,font)
     multiple_initial_conditions_demo(width,height,font)

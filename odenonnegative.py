@@ -3,6 +3,28 @@ from feval import feval
 
 def odenonnegative(ode,y0,threshold,idxNonNegative):
     
+    '''Helper function to ensure non-negative solutions for ode45.
+        
+    Parameters
+    ----------
+    ode : callable
+        Ode function.
+    y0 : 
+        Initial values.
+    threshold : float || list
+        Error threshold
+    idxNonNegative : list
+        List of solutions which should be non-negative.
+        
+        
+    Returns
+    -------
+    odeFcn, : callable
+        Overwriten odeFcn which will ensure that the indicated solution will be non-negative.
+    thresholdNonNegative : array_like
+        List of thresholds for the non-negative solutions.
+    '''
+    
     if any([True for i in idxNonNegative if i<0 or i>=len(y0)]):
         raise IndexError('odenonnegative: idxNonNegative: index outside of scope')
     

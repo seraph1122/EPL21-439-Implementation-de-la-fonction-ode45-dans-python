@@ -1,4 +1,6 @@
 import numpy as np
+
+#Helper functions
 from odeget import odeget
 from feval import feval
 
@@ -13,7 +15,7 @@ def odeevents(t0,y0,options,extras):
     y0 : array_like, shape(n,)
         Initial values.
     options : dictionary
-        Options, see options detail for more information.
+        Options, see ode45 sepifications for more information.
     extras : array_like, shape(k,)
         Extra arguments in the function evaluation, if no extra arguments are used then extra is empty. 
         
@@ -25,7 +27,7 @@ def odeevents(t0,y0,options,extras):
         Event function if contained in the options, None otherwise.
     eventArgs : array_like, shape(k,) || None
         extras if event function contained in options, None otherwise.
-    eventValue
+    eventValue : array_like, shape(n,) || None
         Values of the event function for the initial values if event function contained in options,
         None otherwise.
     teout : ndarray, shape(0,)

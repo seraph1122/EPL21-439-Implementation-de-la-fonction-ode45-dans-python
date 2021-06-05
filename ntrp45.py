@@ -22,9 +22,9 @@ def ntrp45(tinterp,t,y,h,f,idxNonNegative):
         
     Returns
     -------
-    yinterp : array_like, shape()
+    yinterp : array_like
         Esitimation at tinterp.
-    ypinterp : array_like, shape()
+    ypinterp : array_like
         Derivative points for tinterp.
     '''
     

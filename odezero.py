@@ -1,9 +1,56 @@
 import numpy as np
 import math
+
+#Helper functions
 from ntrp45 import ntrp45
 from feval import feval
 
+
 def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
+    
+    '''Helper function to find the zero crossings of the event function for ode45.
+        
+    Parameters
+    ----------
+    ntrpfun : callable
+        ntrp45
+    eventfun : callable
+        Event function to be evaluated.
+    eventargs : array_like
+        Extra arguments for the event function.
+    v : array_like
+        Previously evaluated event function.
+    t : scalar
+        Current time.
+    y : array_like, shape(n,)
+        Currently evaluated points.
+    tnew : scalar
+        Next time.
+    ynew : array_like, shape(n,)
+        Next evaluated points. 
+    t0 : float
+        Final time interval.
+    h : scalar
+        Size of step.
+    f : ndarray, shape(n,7)
+        Evaluated derivative points.
+    idxNonNegative : array_like, shape(m,)
+        Non negative solutions.
+        
+        
+    Returns
+    -------
+    tout : array_like
+        Time of events.
+    yout : array_like
+        Evaluated points of events.
+    iout : array_like
+        Index of events.
+    vnew : array_like
+        New evaluation of the event function.
+    stop : Boolean
+        Whether execution should be halted.
+    '''
     
     tol = 128*max(np.spacing(float(t)),np.spacing(float(tnew)))
     tol = min(tol, abs(tnew - t))
@@ -72,8 +119,6 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                 
             
             ytry, discard = ntrp45(ttry,t,y,h,f,idxNonNegative)
-            
-            #ytry = ytry[0]
             [vtry, discrad1, discard2] = feval(eventfun,ttry,ytry,eventargs)
             indzc = [i for i in range(len(direction)) if (direction[i]*(vtry[i]-vL[i])>=0) and (vtry[i]*vL[i] < 0 or vtry[i]*vL[i] == 0)]
             
@@ -114,7 +159,7 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
         
         ntout=np.array([tR for index in range(len(indzc))])
         nyout=np.tile(np.transpose([yR]),len(indzc))[0]
-        niout=np.array([indzc[index] for index in range(len(indzc))]) #indzc is vertical fix
+        niout=np.array([indzc[index] for index in range(len(indzc))])
         if len(tout)==0:
             tout=ntout
             yout=nyout

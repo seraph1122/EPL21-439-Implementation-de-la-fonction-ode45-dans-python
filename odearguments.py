@@ -1,11 +1,12 @@
 import numpy as np
-from feval import feval
-from odeoptions import odeoptions
-from odeget import odeget
 import numbers as num
 from inspect import signature
 import warnings
 
+#Helper functions
+from odeoptions import odeoptions
+from odeget import odeget
+from feval import feval
 
 
 def odearguments(ode, tspan, y0, options, extras): 
@@ -22,7 +23,7 @@ def odearguments(ode, tspan, y0, options, extras):
     y0 : array_like, shape(n,)
         Initial values.
     options : dictionary
-        Options, see options detail for more information.
+        Options, see ode45 sepifications for more information.
     extras : array_like, shape(k,)
         Extra arguments in the function evaluation, if no extra arguments are used then extra is empty. 
         

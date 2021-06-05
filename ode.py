@@ -1,4 +1,8 @@
 import numpy as np
+import math
+import warnings
+
+#Helper functions
 from ntrp45 import ntrp45
 from odearguments import odearguments
 from odeget import odeget
@@ -8,15 +12,129 @@ from odezero import odezero
 from odemass import odemass
 from odemassexplicit import odemassexplicit
 from odenonnegative import odenonnegative
-import math
 from odefinalize import odefinalize
-import warnings
 
-def ode45(odefun,tspan,y0,options=None,varargin=None):
+
+def ode45(odefun, tspan, y0, options = None, varargin = None):
+    
+    '''Function to solve non-stiff differential equations using the dormund prince method
+        with adaptive step. The system of differential equations takes the form y' = f(t,y)
+        with y(0) = y_0 for t = {t_0, t_end}.
+            
+    Parameters
+    ----------
+    odefun : callable
+        Callable function which represents the system of differential equations to be
+        solved. The function must take the form y' = f(t,y), eg:
+            
+            def dydt(t,y):
+                return [math.cos(t), y[1] * math.sin(t)]
+                
+        Where t must be a float and y must be an array_like of size n, where n is the
+        size of the system. The function must return an array_like with the same size
+        of size n.
+            
+    tspan : array_like, shape(2,) || shape(k,)
+        This array represents the span over which odefun will be evaluated. It can either
+        be an array of size 2 which represents [t_0, t_end], or it can either be a larger
+        array which would represent a series of chosen points. If tspan is a series of 
+        chosen points, then the function will only be evaluated at those points.
+    
+    y0 : array_like, shape(n,)
+        This array are the initial values for the odefun function. It must be the same size
+        as the array returned by the odefun.
+    
+    options : dictionary
+        This dictionary contains the user options, the keys are represented by the option
+        name, and the values are the value of the options. If a default value is shown, then
+        this is the value the option will be set to automatically. The possible options are:
+            
+            AbsTol : float || array_like, shape(n,)    (default : 1e-6)
+                Absolute error tolerance, can be a positive float or an array of postive
+                floats.
+                
+            RelTol : float    (default : 1e-3)
+                Relative error tolerance.
+                
+            NormControl : 'on' || 'off'    (default : 'off')
+                If 'off' then error at each step:
+                    error[i] <= max(RelTol * y[i], AbsTol[i])
+                If 'on' then error at each step:
+                    |error| <= max(RelTol * |y|, |AbsTol|)
+                If NormControl is 'on' then AbsTol must be a float and not an array_like.
+            
+            Stats : 'on' || 'off'    (default : 'off')
+                If 'on' then the function will
+            
+            InitialStep : float
+                Size of the intial step, must be a positive float.
+                
+            MaxStep : float    (default : 0.1 * abs(t_0 - t_end))
+                Size of the maximun step, must be a positive float.
+            
+            Refine : integer    (default : 4)
+                Determines the refinement to be performed at each step. If refine is set to 
+                one, then no refinement will be performed.
+                
+            NonNegative : array_like    (default : [])
+                List solutions of the differential system which will be kept positive. The
+                list must contain only integers representing the indices of the solutions.
+            
+            Events : callable
+                Function which must return value, isterminal, direction, all of which are 
+                array_like of the same size. When the value of any of the values is 0 then
+                an event is triggered. The isterminal determines whether the event should stop
+                the execution and can only take value of 0 or 1. The direction determines from
+                which direction the event should be triggered, if -1 then the event triggers
+                if comming from the negative, whereas 1 will trigger if omming from the positive
+                side, and 0 will trigger when comming from any side. E.g :
+                    
+                    def events(t,y):
+                        value = [10 - t, y[1]]
+                        isterminal = [0, 1]
+                        direction = [1, 0]
+                        return value, isterminal, direction
+                
+            Mass : callable || array_like, shape(n,n)
+                The mass option can either be a constant mass matrix, a time dependent function
+                or a state-time dependent function.
+                
+                    Mass Matrix : array_like, shape(n,n)
+                        Will solve for y s.t. M y' = f(t,y), M must be a square matrix.
+                    
+                    Time Dependent Function : callable
+                        Will solve for y s.t. M(t) y' = f(t,y), M(t) must be a function in the
+                        which takes t as argument an return an array_like(n,n)
+                    
+                    State-Time Dependent Function : callable
+                        Will solve for y s.t. M(t,y) y' = f(t,y), M(t,y) must be a function in the
+                        which takes t and y as argument an return an array_like(n,n)
+            
+            MStateDependence : 'none' || 'weak'    (default : 'none')
+                Must be set to 'weak' if the Mass option is a state-time dependent function, otherwise
+                it must be set to 'none'.
+                    
+    varargin : array_like, shape(t,)
+        These are extra arguments that can be passed to the odefun. For example:
+            
+            def dydt(t,y,a,b):
+                return [math.cos(t) + a, y[1] * math.sin(t) + b]
+            
+            varagin = [a,b]
+        Note that these extra argument will also be passed to any events or mass function.
+            
+
+    Returns
+    -------
+    _ : odefinalize
+        The function will return an object of type odefinalize (see odefinalize).
+    
+    '''
+    
     
     solver_name='ode45'
 
-    nsteps=0
+    nsteps = 0
     nfailed = 0
     nfevals = 0
     
@@ -26,12 +144,12 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
     if isinstance(varargin,type(None)):
         varargin = []
     
+    #Handle solver arguments
     neq, tspan, ntspan, nex, t0, tfinal, tdir, y0, f0, odeArgs, odeFcn, options, threshold, rtol, normcontrol, normy, hmax, htry, htspan, dataType = odearguments(odefun, tspan, y0, options, varargin)
     nfevals = nfevals + 1
-    #dataType='float64'
     
     
-    refine=max(1,odeget(options,'Refine',4))
+    refine=max(1,odeget(options,'Refine', 4))
     if len(tspan) > 2:
         outputAt = 'RequestedPoints'
     elif refine == 1:
@@ -44,9 +162,11 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
     printstats = (odeget(options,'Stats','off') == 'on')
     
     
+    #Handle the event function 
     haveEventFcn,eventFcn,eventArgs,valt,teout,yeout,ieout=odeevents(t0,y0,options,varargin)
     
     
+    #Handle the mass matrix
     Mtype, M, Mfun =  odemass(t0,y0,options,varargin)
     if Mtype > 0:
         odeFcn,odeArgs = odemassexplicit(Mtype,odeFcn,odeArgs,Mfun,M)
@@ -54,7 +174,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
         nfevals = nfevals + 1
     
      
-        
+    #Non-negative solution components
     idxNonNegative = odeget(options,'NonNegative',[])
     nonNegative = False
     if len(idxNonNegative) != 0:
@@ -87,14 +207,14 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
     #Initialize method parameters
     stop=0
     power = 1/5
-    A = np.array([1./5., 3./10., 4./5., 8./9., 1., 1.],dtype='float64')
-    B = np.array([[1./5.,         3./40.,    44./45.,   19372./6561.,      9017./3168.,       35./384.    ],
-                [0.,           9./40.,    -56./15.,  -25360./2187.,     -355./33.,         0.           ],
-                [0.,           0.,       32./9.,    64448./6561.,      46732./5247.,      500./1113.    ],
-                [0.,           0.,       0.,       -212./729.,        49./176.,          125./192.     ],
-                [0.,           0.,       0.,       0.,               -5103./18656.,     -2187./6784.  ], 
-                [0.,           0.,       0.,       0.,               0.,               11./84.       ],
-                [0.,           0.,       0.,       0.,               0.,               0.           ]],dtype='float64')
+    A = np.array([1./5.,        3./10.,     4./5.,      8./9.,          1.,             1.              ],dtype='float64')
+    B = np.array([[1./5.,       3./40.,     44./45.,    19372./6561.,   9017./3168.,    35./384.        ],
+                  [0.,          9./40.,     -56./15.,   -25360./2187.,  -355./33.,      0.              ],
+                  [0.,          0.,         32./9.,     64448./6561.,   46732./5247.,   500./1113.      ],
+                  [0.,          0.,         0.,         -212./729.,     49./176.,       125./192.       ],
+                  [0.,          0.,         0.,         0.,             -5103./18656.,  -2187./6784.    ], 
+                  [0.,          0.,         0.,         0.,             0.,             11./84.         ],
+                  [0.,          0.,         0.,         0.,             0.,             0.              ]],dtype='float64')
     
     
     E = np.array([[71./57600.], [0.], [-71./16695.], [71./1920.], [-17253./339200.], [22./525.], [-1./40.]],dtype='float64')
@@ -102,6 +222,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
     hmin=16*np.spacing(float(t))
     np.set_printoptions(precision=16)    
     
+    #Initial step
     if htry==0:
         absh = min(hmax, htspan)
         if normcontrol:
@@ -121,18 +242,20 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
     
     ynew=np.zeros(neq,dtype='float64')
     
+    #Main loop
     done=False
     while not done:
         hmin = 16*np.spacing(float(t))
         absh = min(hmax, max(hmin, absh))
         h = tdir * absh
                 
-
+        #If next step is within 10% of finish
         if 1.1*absh >= abs(tfinal - t):
             h = tfinal - t
             absh = abs(h)
             done = True
         
+        #Advancing one step
         nofailed=True
         while True:
             hA = h * A
@@ -146,15 +269,15 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
             
             tnew = t + hA[5]
             if done:
-                tnew = tfinal
-            h = tnew - t 
+                tnew = tfinal   #Hit end point exactly
+            h = tnew - t
             
             
             ynew=y+np.matmul(f,hB[:,5])
             f[:,6]=feval(odeFcn,tnew,ynew,odeArgs)
             nfevals=nfevals+6
 
-            
+            #Estimation of the error
             NNrejectStep = False
             if normcontrol:
                 normynew = np.linalg.norm(ynew)
@@ -175,7 +298,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
                         NNrejectStep =True
 
 
-
+            #Error is outside the tolerance
             if err > rtol:
                 nfailed = nfailed + 1
                 if absh <= hmin:
@@ -193,7 +316,8 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
                     absh = max(hmin, 0.5*absh)
                 h= tdir * absh
                 done = False
-            else:
+            else:   
+                #Successful step
                 NNreset_f7 = False
                 if nonNegative and any([True for i in idxNonNegative if ynew[i]<0]):
                     for j in idxNonNegative:
@@ -204,7 +328,6 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
                     NNreset_f7=True
                 
                 break
-            
             
             
         nsteps+=1
@@ -228,6 +351,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
                     ieout=np.append(ieout,ie)
                     
                 if stop:
+                    #Terminal event
                     taux = t + (te[-1] - t)*A
                     _,f[:,1:7]=ntrp45(taux,t,np.transpose(np.array([y])),h,f,idxNonNegative)
                     tnew = te[-1]
@@ -237,10 +361,12 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
                     
         
         if outputAt == "SolverSteps":
+            #Computed points, no refinement
             nout_new=1
             tout_new=np.array([tnew])
             yout_new=np.transpose(np.array([ynew]))
-        elif outputAt == "RefinedSteps":    
+        elif outputAt == "RefinedSteps":
+            #Computed points, with refinement
             tref=t+(tnew-t)*s
             nout_new=refine
             tout_new=tref.copy()
@@ -248,6 +374,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
             yout_new,_=ntrp45(tref,t,np.transpose(np.array([y])),h,f,idxNonNegative)
             yout_new=np.append(yout_new,np.transpose(np.array([ynew])),axis=1)
         elif outputAt == "RequestedPoints":
+            #Chosen points
             nout_new=0
             tout_new=np.array([])
             yout_new=np.array([])
@@ -293,7 +420,7 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
         if done:
             break
         
-        
+        #No failures, compute new h
         if nofailed:
             temp = 1.25*math.pow((err/rtol),power)
             if temp > 0.2:
@@ -301,9 +428,10 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
             else:
                 absh=5.0*absh
                 
-            
+        #Advance the integration by one step
         t=tnew
         y=ynew.copy()
+        
         if normcontrol:
             normy=normynew
         
@@ -314,14 +442,4 @@ def ode45(odefun,tspan,y0,options=None,varargin=None):
         
     
     return odefinalize(solver_name,printstats,[nsteps,nfailed,nfevals],nout,tout,yout,haveEventFcn,teout,yeout,ieout)
-    
 
-    
-            
-            
-            
-            
-            
-            
-            
-            

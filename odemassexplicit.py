@@ -12,32 +12,27 @@ def odemassexplicit(massType,odeFcn,odeArgs,massFcn,massM):
         
     Parameters
     ----------
-    t0 : scalar
-        Initial time to be evaluated.
-    y0 : array_like, shape(n,)
-        Initial values.
-    options : dictionary
-        Options, see options detail for more information.
-    extras : array_like, shape(k,)
-        Extra arguments in the function evaluation, if no extra arguments are used then extra is empty. 
+    massType : integer
+        0 : If no mass option exists in options.
+        1 : If mass option exists in options, and it matrix.
+        2 : If mass option exists in options, and it is time-dependent function.
+        2 : If mass option exists in options, and it is statetime-dependent function.
+    odeFcn : callable
+        Ode function.
+    odeArgs : array_like
+        Extra arguments for the ode function.
+    massM : array_like, shape(n,n) || None
+        Mass matrix if the mass option exists in options, and it is matrix. If mass option is a function
+        then it is the evaluated mass function with the initial values. None otherwise.
+    massFcn : callable || None
+        Mass function if the mass option exists in options, and it is function. None otherwise.
         
     Returns
     -------
-    haveeventfun : bool
-        True if event function contained in options, False otherwise.
-    eventFcn : callable || None
-        Event function if contained in the options, None otherwise.
-    eventArgs : array_like, shape(k,) || None
-        extras if event function contained in options, None otherwise.
-    eventValue
-        Values of the event function for the initial values if event function contained in options,
-        None otherwise.
-    teout : ndarray, shape(0,)
-        Empty numpy array to store events t values.
-    yeout : ndarray, shape(0,)
-        Empty numpy array to store events y values.
-    ieout : ndarray, shape(0,)
-        Empty numpy array to store events index values.
+    odeFcn : callable
+        Overwriten odeFcn which will solve M y' = f(t,y) for any evaluated points.
+    odeArgs : array_like
+        Overwriten odeArgs with all extra arguments needed to solve for M y' = f(t,y).
     '''
     
     if massType == 1:
@@ -58,41 +53,7 @@ def odemassexplicit(massType,odeFcn,odeArgs,massFcn,massM):
     return odeFcn,odeArgs
 
 
-def explicitSolverHandleMass1sparse(t,y,odeFcn,superLU,varargin):
-    
-    '''Auxiliary mass function.
-        
-    Parameters
-    ----------
-    t : scalar
-        Time to be evaluated.
-    y : array_like, shape(n,)
-        Evaluated values.
-    odeFcn : dictionary
-        Options, see options detail for more information.
-    superLU
-    varargin : array_like, shape(k,)
-        Extra arguments in the function evaluation, if no extra arguments are used then extra is empty. 
-        
-    Returns
-    -------
-    haveeventfun : bool
-        True if event function contained in options, False otherwise.
-    eventFcn : callable || None
-        Event function if contained in the options, None otherwise.
-    eventArgs : array_like, shape(k,) || None
-        extras if event function contained in options, None otherwise.
-    eventValue
-        Values of the event function for the initial values if event function contained in options,
-        None otherwise.
-    teout : ndarray, shape(0,)
-        Empty numpy array to store events t values.
-    yeout : ndarray, shape(0,)
-        Empty numpy array to store events y values.
-    ieout : ndarray, shape(0,)
-        Empty numpy array to store events index values.
-    '''
-    
+def explicitSolverHandleMass1sparse(t,y,odeFcn,superLU,varargin):   
     ode = feval(odeFcn,t,y,varargin)
     yp = superLU.solve(np.array(ode))
     return yp

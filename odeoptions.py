@@ -3,8 +3,22 @@ import numbers as num
 from inspect import signature
 
 
-
 def odeoptions(options, t, y, varargin):
+    
+    '''Options helper function for ode45, verifies the options adhear to the sepcifications,
+    otherwise an error is raised.
+        
+    Parameters
+    ----------
+    options : dictionary
+        Options, see ode45 sepifications for more information.
+    t : float
+        Initial time.
+    y : array_like, shape(n,)
+        Initial values.
+    varargin : array_like, shape(k,)
+        Extra arguments for the ode function. 
+    '''
     
     if type(options) != type({}):
         raise TypeError("odeoptions: options is not a dictionary")
