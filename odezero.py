@@ -52,6 +52,7 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
         Whether execution should be halted.
     '''
     
+    #Initialize
     tol = 128*max(np.spacing(float(t)),np.spacing(float(tnew)))
     tol = min(tol, abs(tnew - t))
     
@@ -76,15 +77,18 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
     vR = vnew
     ttry = tR
     
+    #Find all events 
     while True:
         lastmoved = 0
         while True:
+            
             indzc = [i for i in range(len(direction)) if (direction[i]*(vR[i]-vL[i])>=0) and (vR[i]*vL[i] < 0 or vR[i]*vL[i] == 0)]
             if len(indzc)==0:
                 if lastmoved != 0:
                     raise Exception('ode45:odezero:LostEvent')
                 return tout,yout,iout,vnew,stop
-
+            
+            #Verify interval is still large enough
             delta = tR - tL
             if abs(delta) <= tol:
                 break
@@ -92,6 +96,7 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
             if (tL == t) and any([vL[index]==0 and vR[index]!=0 for index in indzc]):
                 ttry = tL + tdir*0.5*tol
             else:
+                #Regula Falsi method
                 change = 1
                 for j in indzc:
                     if vL[j]==0:
@@ -122,6 +127,7 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
             [vtry, discrad1, discard2] = feval(eventfun,ttry,ytry,eventargs)
             indzc = [i for i in range(len(direction)) if (direction[i]*(vtry[i]-vL[i])>=0) and (vtry[i]*vL[i] < 0 or vtry[i]*vL[i] == 0)]
             
+            #Illinois Method
             if len(indzc)!=0:
                 tswap = tR
                 tR = ttry
@@ -175,8 +181,10 @@ def odezero(ntrpfun,eventfun,eventargs,v,t,y,tnew,ynew,t0,h,f,idxNonNegative):
                 stop = 1
             return tout,yout,iout,vnew,stop
         elif abs(tnew - tR) <= tol:
+            #Found acceptable solution
             break
         else:
+            #Shift bracket rightward
             ttry = tR
             ytry = yR
             vtry = vR

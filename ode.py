@@ -50,7 +50,7 @@ def ode45(odefun, tspan, y0, options = None, varargin = None):
         this is the value the option will be set to automatically. The possible options are:
             
             AbsTol : float || array_like, shape(n,)    (default : 1e-6)
-                Absolute error tolerance, can be a positive float or an array of postive
+                Absolute error tolerance, can be a positive float or an array of positive
                 floats.
                 
             RelTol : float    (default : 1e-3)
@@ -64,10 +64,10 @@ def ode45(odefun, tspan, y0, options = None, varargin = None):
                 If NormControl is 'on' then AbsTol must be a float and not an array_like.
             
             Stats : 'on' || 'off'    (default : 'off')
-                If 'on' then the function will
+                If 'on' then the function will print a series of stats about the execution.
             
             InitialStep : float
-                Size of the intial step, must be a positive float.
+                Size of the initial step, must be a positive float.
                 
             MaxStep : float    (default : 0.1 * abs(t_0 - t_end))
                 Size of the maximun step, must be a positive float.
@@ -86,8 +86,8 @@ def ode45(odefun, tspan, y0, options = None, varargin = None):
                 an event is triggered. The isterminal determines whether the event should stop
                 the execution and can only take value of 0 or 1. The direction determines from
                 which direction the event should be triggered, if -1 then the event triggers
-                if comming from the negative, whereas 1 will trigger if omming from the positive
-                side, and 0 will trigger when comming from any side. E.g :
+                if coming from the negative direction, whereas 1 will trigger if coming from 
+                the positive direction, and 0 will trigger when coming from any direction. E.g :
                     
                     def events(t,y):
                         value = [10 - t, y[1]]
@@ -207,18 +207,18 @@ def ode45(odefun, tspan, y0, options = None, varargin = None):
     #Initialize method parameters
     stop=0
     power = 1/5
-    A = np.array([1./5.,        3./10.,     4./5.,      8./9.,          1.,             1.              ],dtype='float64')
+    A = np.array([1./5.,        3./10.,     4./5.,      8./9.,          1.,             1.              ],dtype=dataType)
     B = np.array([[1./5.,       3./40.,     44./45.,    19372./6561.,   9017./3168.,    35./384.        ],
                   [0.,          9./40.,     -56./15.,   -25360./2187.,  -355./33.,      0.              ],
                   [0.,          0.,         32./9.,     64448./6561.,   46732./5247.,   500./1113.      ],
                   [0.,          0.,         0.,         -212./729.,     49./176.,       125./192.       ],
                   [0.,          0.,         0.,         0.,             -5103./18656.,  -2187./6784.    ], 
                   [0.,          0.,         0.,         0.,             0.,             11./84.         ],
-                  [0.,          0.,         0.,         0.,             0.,             0.              ]],dtype='float64')
+                  [0.,          0.,         0.,         0.,             0.,             0.              ]],dtype=dataType)
     
     
-    E = np.array([[71./57600.], [0.], [-71./16695.], [71./1920.], [-17253./339200.], [22./525.], [-1./40.]],dtype='float64')
-    f=np.zeros((neq,7),dtype='float64')
+    E = np.array([[71./57600.], [0.], [-71./16695.], [71./1920.], [-17253./339200.], [22./525.], [-1./40.]],dtype=dataType)
+    f=np.zeros((neq,7),dtype=dataType)
     hmin=16*np.spacing(float(t))
     np.set_printoptions(precision=16)    
     
@@ -240,7 +240,7 @@ def ode45(odefun, tspan, y0, options = None, varargin = None):
     
     f[:,0]=f0
     
-    ynew=np.zeros(neq,dtype='float64')
+    ynew=np.zeros(neq,dtype=dataType)
     
     #Main loop
     done=False
@@ -404,6 +404,7 @@ def ode45(odefun, tspan, y0, options = None, varargin = None):
                 nex = nex + 1
         
         
+        #Extra memory allocation
         if nout_new > 0:
             oldnout=nout
             nout=nout+nout_new

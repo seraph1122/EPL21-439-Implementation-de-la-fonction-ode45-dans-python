@@ -15,7 +15,7 @@ def odemass(t0, y0, options, extras):
     y0 : array_like, shape(n,)
         Initial values.
     options : dictionary
-        Options, see options detail for more information.
+        Options, see ode45 sepifications for more information.
     extras : array_like, shape(k,)
         Extra arguments in the function evaluation, if no extra arguments are used then extra is empty. 
         
@@ -34,6 +34,7 @@ def odemass(t0, y0, options, extras):
         Mass function if the mass option exists in options, and it is function. None otherwise.
     '''
     
+    #Initialize
     massType = 0
     massFcn = None
     massM = sp.eye(len(y0),format="csr")
@@ -41,14 +42,17 @@ def odemass(t0, y0, options, extras):
     
     Moption = odeget(options,'Mass',None)
     if isinstance(Moption,type(None)):
+        #No mass option
         return massType, massM, massFcn
     
     elif not callable(Moption):
+        #Mass matrix
         massType = 1
         massM = Moption
         return massType, massM, massFcn
     
     else:
+        #Mass function
         massFcn = Moption
         massArgs = extras
         Mstdep = odeget(options,'MStateDependence','weak')

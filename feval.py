@@ -25,7 +25,8 @@ def feval(fun, t, y, extra):
     if isinstance(y, np.ndarray):
         if y.ndim != 1:
             y = np.squeeze(y)  
-
+            
+    #fun has signature fun(t,*extra)
     if isinstance(y, type(None)):
         try:
             result = fun(t, *extra)
@@ -33,6 +34,7 @@ def feval(fun, t, y, extra):
             raise Exception("ode45: feval: " + str(exception))
         return result
     
+    #fun has signature fun(t,y,*extra)
     try:
         result = fun(t, y, *extra)
     except Exception as exception:

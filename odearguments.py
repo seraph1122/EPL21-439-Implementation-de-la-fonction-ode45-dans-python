@@ -74,7 +74,7 @@ def odearguments(ode, tspan, y0, options, extras):
         float64.
     '''
     
-    #Checking y0
+    #Verify y0
     if not isinstance(y0,np.ndarray) and not isinstance(y0,list):
         raise TypeError('odearguments: y0: must be a list or ndarray')
     else:
@@ -85,7 +85,7 @@ def odearguments(ode, tspan, y0, options, extras):
                 raise TypeError('odearguments: y0: elements must be numbers')
         neq=len(y0)
     
-    #Checking tspan
+    #Verify tspan
     if not isinstance(tspan,np.ndarray) and not isinstance(tspan,list):
         raise TypeError('odearguments: tspan: must be a list or ndarray')
     else:
@@ -96,7 +96,7 @@ def odearguments(ode, tspan, y0, options, extras):
                 raise TypeError('odearguments: tspan: elements must be numbers')
     
     
-    #Checking ode
+    #Verify ode
     if not callable(ode):
         raise TypeError('odearguments: ode: ode function is not callable')
     else:
@@ -114,6 +114,7 @@ def odearguments(ode, tspan, y0, options, extras):
                     if not isinstance(i,num.Number):
                         raise TypeError('odearguments: ode: elements must be numbers')
     
+    #Check options
     odeoptions(options, tspan[0], y0, extras)
     
     htspan = abs(tspan[1]-tspan[0])
@@ -123,7 +124,7 @@ def odearguments(ode, tspan, y0, options, extras):
     tfinal = tspan[-1]
     args = extras
         
-    
+    #Verify tspan
     if t0 == tfinal:
         raise ValueError('odearguments: tspan: first value and final value must be different') 
     tdir = np.sign(tfinal-t0)
@@ -133,12 +134,14 @@ def odearguments(ode, tspan, y0, options, extras):
     f0=feval(ode,t0,y0,extras)
     
     dataType='float64'
-
+    
+    #Relative tolerance
     rtol=odeget(options,'RelTol',1e-3)
     if rtol < 100 * np.finfo(dataType).eps:
         rtol = 100 * np.finfo(dataType).eps
         warnings.warn('odearguments: rtol: rtol was too small')
     
+    #Absolute tolerance
     atol=odeget(options, 'AbsTol', 1e-6)
     normcontrol = (odeget(options, 'NormControl', 'off') == 'on')
     if normcontrol:
@@ -153,6 +156,7 @@ def odearguments(ode, tspan, y0, options, extras):
     else:
         threshold=atol/rtol
     
+    #Default max step is 1/10 size of the interval
     hmax=min(abs(tfinal-t0), abs(odeget(options, 'MaxStep', 0.1*(tfinal-t0))))
     htry=odeget(options,'InitialStep',0)
     

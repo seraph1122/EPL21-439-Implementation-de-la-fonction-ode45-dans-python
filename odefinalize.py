@@ -18,7 +18,7 @@ class odefinalize:
             Array containing number of successful steps, the number of failed steps, and the
             number of functions evaluated.
         nout : integer
-            Number of point evaluated during the integration proccess.
+            Number of point evaluated during the integration process.
         tout : ndarray, shape(1,m)
             Array containing all the points t evaluated. This array is larger or equal to the
             number of points actually evaluated (m >= nout), the rest contains zeros.
@@ -33,7 +33,7 @@ class odefinalize:
         yeout : ndarray, shape(n,k)
             Array containing the evaluated values for all teout points with an event.
         ieout : ndarray, shape(k,)
-            Array containing the index of yeout values with an event.
+            Array containing the indices of yeout values with an event.
     
         '''
         

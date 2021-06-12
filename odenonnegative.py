@@ -36,7 +36,7 @@ def odenonnegative(ode,y0,threshold,idxNonNegative):
     else:
         thresholdNonNegative = [threshold] * len(idxNonNegative)
     
-    
+    #Wrapper function
     def local_odeFcn_nonnegative(t,y,*varargin):
         yp = feval(ode,t,y,varargin)
         ndx = [i for i in idxNonNegative if y[i]<=0]

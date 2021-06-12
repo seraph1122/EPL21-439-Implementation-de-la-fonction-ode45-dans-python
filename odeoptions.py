@@ -20,22 +20,23 @@ def odeoptions(options, t, y, varargin):
         Extra arguments for the ode function. 
     '''
     
+    #Verify options is a dictionary
     if type(options) != type({}):
         raise TypeError("odeoptions: options is not a dictionary")
     
-    #np.dtype(x).type==np.dtype(int).type, num.Number
-    
+    #Iterate through all options      
     for (key,value) in options.items():
         
+        #Verify RelTol, InitialStep, and MaxStep are positive numbers
         if key == 'RelTol' or key == 'InitialStep' or key == 'MaxStep':
             if isinstance(value,float) or isinstance(value,int):
-                if value < 0:
+                if value <= 0:
                     raise ValueError("odeoptions: " + str(key) + ": int/float must be positive")            
             else:
                 raise TypeError('odeoptions: ' + str(key) + ': must be a positive int/float')
 
 
-        
+        #Verify AbsTol is a positive numbers or a list of positive number
         elif key == 'AbsTol':
             if isinstance(value,float) or isinstance(value,int):
                 if value < 0:
@@ -54,13 +55,13 @@ def odeoptions(options, t, y, varargin):
                 raise TypeError('odeoptions: AbsTol: must a int/float or list of int/float')
           
             
-            
+        #Verify NormControl and Stats are either 'on' or 'off'
         elif key == 'NormControl' or key == 'Stats':
             if value != 'on' and value != 'off':
                 raise ValueError('odeoptions: ' + str(key) + ': must either be \'on\' or \'off\'')
         
         
-        
+        #Verify NonNegative is a list of indices
         elif key == 'NonNegative':
             if isinstance(value,list):
                 for i in value:
@@ -72,7 +73,8 @@ def odeoptions(options, t, y, varargin):
             else:
                 raise TypeError('odeoptions: NonNegative: must be a list')
                 
-                
+        
+        #Verify Refine is a positive integer       
         elif key == 'Refine':
             if isinstance(value,int):
                 if value < 1:
@@ -80,7 +82,8 @@ def odeoptions(options, t, y, varargin):
             else:
                 raise TypeError('odeoptions: Refine: must be a postive integer')
                     
-                
+        
+        #Verify Events is an event function
         elif key == 'Events':
             if not callable(value):
                 raise TypeError('odeoptions: Events: must be a function')
@@ -101,6 +104,7 @@ def odeoptions(options, t, y, varargin):
                             raise ValueError('odeoptions: Event: direction must be either 0, 1 or -1')
                 
         
+        #Verify Mass is a mass function or square matrix
         elif key == 'Mass':
             if callable(value):
                 sig = signature(value)
@@ -130,6 +134,7 @@ def odeoptions(options, t, y, varargin):
                 raise TypeError('odeoptions: Mass: function must return a square matrix of type list/ndarray')
                               
         
+        #Verify MStateDependence 
         elif key == 'MStateDependence':
             if value != 'none' and value != 'weak':
                 raise ValueError('odeoptions: MStateDependence: must either be \'none\' or \'weak\'')

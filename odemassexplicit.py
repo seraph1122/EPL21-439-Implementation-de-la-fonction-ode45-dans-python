@@ -53,24 +53,29 @@ def odemassexplicit(massType,odeFcn,odeArgs,massFcn,massM):
     return odeFcn,odeArgs
 
 
-def explicitSolverHandleMass1sparse(t,y,odeFcn,superLU,varargin):   
+
+def explicitSolverHandleMass1sparse(t,y,odeFcn,superLU,varargin):
+    #Wrapper function for sparse mass matrix
     ode = feval(odeFcn,t,y,varargin)
     yp = superLU.solve(np.array(ode))
     return yp
 
 def explicitSolverHandleMass1(t,y,odeFcn,PL,U,varargin):
+    #Wrapper function for dense mass matrix
     ode = feval(odeFcn,t,y,varargin)
     xp = lg.lstsq(PL,ode)[0]
     yp = lg.lstsq(U,xp)[0]
     return yp
 
 def explicitSolverHandleMass2(t,y,odeFcn,massFcn,varargin):
+    #Wrapper function for time dependent function
     mass = feval(massFcn,t,None,varargin)
     ode = feval(odeFcn,t,y,varargin)
     yp = lg.lstsq(mass,ode)[0]
     return yp
 
 def explicitSolverHandleMass3(t,y,odeFcn,massFcn,varargin):
+    #Wrapper function for state-time dependent function
     mass = feval(massFcn,t,y,varargin)
     ode = feval(odeFcn,t,y,varargin)
     yp = lg.lstsq(mass,ode)[0]

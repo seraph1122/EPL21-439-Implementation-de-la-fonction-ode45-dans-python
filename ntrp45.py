@@ -60,10 +60,10 @@ def ntrp45(tinterp,t,y,h,f,idxNonNegative):
         
     yinterp=tile+diff
     
-    
-    
     ncumprod=np.append(np.array([np.ones(len(s))]),np.cumprod([2*s,1.5*s,(4.0/3.0)*s],axis=0),axis=0)
     ypinterp=np.matmul(np.matmul(f,BI),ncumprod)
+    
+    #Non-negative option
     if len(idxNonNegative)!=0:
         idx=[(i,j) for i in idxNonNegative for j in range(len(yinterp[0])) if yinterp[i][j]<0]
         if len(idx) != 0:

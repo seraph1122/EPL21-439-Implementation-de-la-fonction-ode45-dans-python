@@ -49,6 +49,7 @@ def odeevents(t0,y0,options,extras):
     eventFcn=odeget(options,'Events',None)
     
     if eventFcn==None:
+        #No event option
         return haveeventfun,eventFcn,eventArgs,eventValue,teout,yeout,ieout
     
     haveeventfun = True
