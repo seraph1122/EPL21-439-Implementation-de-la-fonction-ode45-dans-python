@@ -1,8 +1,12 @@
 
 function main()
+    %This script is used to perform unit tests for the ode45 function. This script 
+    % will generate the expected output for a series of chosen inputs, it will then 
+    % write these inputs and expected outputs into a text file. More tests can be 
+    % added if desired (Note: any new tests will also have to be added to the Python script)
+    
     fileID = fopen('ode45.txt','w');
     
-%     Poly NN with nonnegative
     opt=odeset('NonNegative',[1,2]);
     tspan = [-6,5];
     y0=[25,50,25,50];
@@ -10,7 +14,7 @@ function main()
     sol=ode45(@polyNN,tspan,y0,opt);
     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
     
-%     Ball ode
+    
     y0 = [0;20];
     tspan = [0,30];
     opt = odeset('Events',@ballevents);
@@ -18,7 +22,7 @@ function main()
     sol=ode45(@ball,tspan,y0,opt);
     writetext(fileID,sol,tspan,y0,t,y,te,ye,ie);
 
-%     Trig events
+    
     y0 = [0;-1];
     tspan = [0,30];
     opt = odeset('Events',@trigevents);
@@ -27,34 +31,34 @@ function main()
     writetext(fileID,sol,tspan,y0,t,y,te,ye,ie);
     
     
-    opt=odeset('RelTol' , 0.0009,'AbsTol' , 3.e-5,'NormControl' , 'on','Refine' , 3,'NonNegative' , [1, 2]);
-    tspan = [19, 53];
     y0 = [6; 38];
+    tspan = [19, 53];
+    opt=odeset('RelTol' , 0.0009,'AbsTol' , 3.e-5,'NormControl' , 'on','Refine' , 3,'NonNegative' , [1, 2]);
     [t,y]=ode45(@trigbasic2,tspan,y0,opt);
     sol=ode45(@trigbasic2,tspan,y0,opt);
     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
 
     
+    y0 = [84; 0.9];
+    tspan = [8, 59];
     mass = [[0.46,0.16];[6.4,0.11]];
     opt=odeset('Mass',mass,'NonNegative' , [1]);
-    tspan = [8, 59];
-    y0 = [84; 0.9];
     [t,y]=ode45(@cosbasic1,tspan,y0,opt);
     sol=ode45(@cosbasic1,tspan,y0,opt);
     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
     
     
-    opt=odeset('AbsTol',[1e-2,2e-7],'RelTol',1e-6);
-    tspan = [8000000000000,8000000000010];
     y0 = [1; 0];
+    tspan = [8000000000000,8000000000010];
+    opt=odeset('AbsTol',[1e-2,2e-7],'RelTol',1e-6);
     [t,y]=ode45(@cosbasic2,tspan,y0,opt);
     sol=ode45(@cosbasic2,tspan,y0,opt);
     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
     
     
-    opt=odeset('AbsTol',[1e-2,2e-7],'RelTol',1e-6,'InitialStep',0.2);
-    tspan = [0:0.5:10];
     y0 = [1; 0];
+    tspan = [0:0.5:10];
+    opt=odeset('AbsTol',[1e-2,2e-7],'RelTol',1e-6,'InitialStep',0.2);
     [t,y]=ode45(@cosbasic3,tspan,y0,opt);
     sol=ode45(@cosbasic3,tspan,y0,opt);
     writetext(fileID,sol,tspan,y0,t,y,[],[],[]);
@@ -62,7 +66,7 @@ function main()
 end
 
 
-%%
+%% Write all your functions here, odeFcn, Events, Mass
 
 function dydt = polyNN(t,y)
     dydt = [0.02*(3*t^5-62*t^3+42*t^2+45*t+18);0.02*(3*t^5-62*t^3+42*t^2+45*t+18);0.02*(3*t^5-62*t^3+42*t^2+45*t+18);0.02*(3*t^5-62*t^3+42*t^2+45*t+18)];

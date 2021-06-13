@@ -1,17 +1,46 @@
 
 function main()
-    %Example
+    %This script is used for the random testing.
+    %Below is an example of the possible use of the random testing.
+    
+    %Function to test, is not randomised
     fun = @cosbasic;
+    
+    %Size of the system
     size = 2;
+    
+    %Interval for the tspan
     tstart=-100;
     tend=100;
+    
+    %Interval for initial values
     y0start=1;
     y0end=100;
-    events=@eventsbasic;
+    
+    %Event function
+    events=@eventsbasic;   
+    
+    %Mass function, or mass matrix 
     mass=[];
     
+    % Choice of the options to test, any combination of the following 
+    % choices, (Note: 'massmatrix','massfunctime', and 'massfuncstate' 
+    % should not be used at the same time):
+    %
+    %   'tol' - Will randomise AbsTol, RelTol, and NormControl
+    %   'nonnegative' - Will randomise NonNegative
+    %   'step' - Will randomise MaxStep and InitialStep
+    %   'refine' - Will randomise Refine
+    %   'events' - Will use the event function passed
+    %   'massmatrix' - Will the mass as a matrix
+    %   'massfunctime' - Will use mass as a time depedent function
+    %   'massfuncstate' - Will use mass as a state-time depedent function
+    %
     choices={'nonnegative','tol','step','refine','massmatrix'}
     fileID = fopen('test.txt','w');
+    
+    %Loop to execute a random test, in this example 10 tests will be
+    %performed
     for i=1:10
         execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,fileID);
     end
@@ -73,7 +102,7 @@ end
 
 %%
 %
-%   Write your functions/mass functions here
+%   Write your ode, event, mass functions here
 %
 %
 

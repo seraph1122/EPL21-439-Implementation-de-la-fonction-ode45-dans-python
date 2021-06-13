@@ -7,17 +7,23 @@ parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
 from ode import ode45
-import matplotlib.pyplot as plt
+
+'''The This script is used to perform random testing for the ode45 function. This script
+    works in conjunction with testScript.m, which generates the expected output for a series 
+    of random inputs. This script will then read the inputs and expected outputs, pass the 
+    inputs to the implemented ode45 function and check them against the expected output.
+    Note: any functions which are added to the MATLAB script also have to be added to this 
+    script.
+'''
 
 def solve_ode(inputs,result):
     sol=ode45(inputs.fun,inputs.tspan,inputs.y0,inputs.get_options(),inputs.varargin)
     result.compare_ty(sol.get_t(),sol.get_y())
     result.compare_stats(sol.get_stats())
-    
-
 
 
 def get_fun(val):
+    #Add any ode function here
     f=None
     if val == 'cosbasic':
         def f(t,y):
@@ -28,9 +34,11 @@ def get_fun(val):
     return f
 
 def get_event_fun(val):
+    #Add any event function here
     return val
 
 def get_mass_fun(val):
+    #Add any mass function here
     return val
 
 class Inputs:

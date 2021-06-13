@@ -7,9 +7,15 @@ parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
 from ode import ode45
-import matplotlib.pyplot as plt
 
 class Testode45(unittest.TestCase):
+    
+    '''This script is used to perform unit tests for the ode45 function. This script 
+        will read the text file produced by the ode45Tests.m file, it will use the 
+        inputs to test the ode45 function and then compare the actual results with the
+        expected results. Note: any new functions added to the MATLAB script also have 
+        to be added to this script.
+    '''
     
     def test_ode45(self):
         
