@@ -36,7 +36,7 @@ function main()
     %   'massfunctime' - Will use mass as a time depedent function
     %   'massfuncstate' - Will use mass as a state-time depedent function
     %
-    choices={'nonnegative','tol','step','refine','massmatrix'}
+    choices={'nonnegative','tol','step','refine','massmatrix'};
     fileID = fopen('test.txt','w');
     
     %Loop to execute a random test, in this example 10 tests will be
@@ -58,7 +58,6 @@ function execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,tex
         ie=[];
         if any(strcmp(choices,'tol'))
             options = randTol(options,y0);
-            disp(options)
         end
         if any(strcmp(choices,'refine'))
             options = randRefine(options);
@@ -82,7 +81,6 @@ function execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,tex
             options = odeset(options,'Mass',mass,'MStateDependence','weak');
         end
         try
-            save('options')
             if any(strcmp(choices,'events'))
                 [t,y,te,ye,ie]=ode45(fun,tspan,y0,options);
             else
@@ -94,7 +92,6 @@ function execute_test(fun,size,tstart,tend,y0start,y0end,events,mass,choices,tex
             warning('Test failed');
         end
     end
-    plot(t,y)
     writetext(textfile,sol,tspan,y0,t,y,te,ye,ie);
 end
 
@@ -171,12 +168,12 @@ function option = randTol(opt,y0)
     end
     absArray=randsample(bool,1);
     if absArray && ~randNorm
-        randAbs=rand(1,length(y0)).*randsample(absexponent,1)
+        randAbs=rand(1,length(y0)).*randsample(absexponent,1);
     else
         randAbs=rand*randsample(absexponent,1);
     end
     option=odeset(option,'AbsTol',randAbs);
-    option=odeset(option,'RelTol',rand*randsample(relexponent,1))
+    option=odeset(option,'RelTol',rand*randsample(relexponent,1));
 end
 
 function option = randRefine(opt)

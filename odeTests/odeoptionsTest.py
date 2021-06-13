@@ -35,7 +35,7 @@ class Testodeoptions(unittest.TestCase):
             odeoptions(options, t, y, extra)
             options = {'RelTol':100}
             odeoptions(options, t, y, extra)
-            options = {'RelTol':0}
+            options = {'RelTol':1e-12}
             odeoptions(options, t, y, extra)
         except:
             self.fail("RelTol option correct test failed")
